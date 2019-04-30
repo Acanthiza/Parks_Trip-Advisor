@@ -29,6 +29,7 @@ editor_options:
                 ,"rstan"
                 ,"rstanarm"
                 ,"ggridges"
+                ,"tmap"
                 )
   
   purrr::walk(packages,library,character.only=TRUE)
@@ -71,7 +72,9 @@ editor_options:
                   , Yearmon = as_date(paste0("01/",Month,"/",Year),tz=Sys.timezone(),format="%d/%B/%Y")
                   , Age = gsub("18-34","18-24",Age)
                   ) %>%
-    dplyr::mutate_if(is.character,funs(gsub("^Null$|^Not given$",NA,.)))
+    dplyr::mutate_if(is.character,list(~gsub("^Null$|^Not given$",NA,.))) %>%
+    dplyr::select(-month) %>%
+    dplyr::filter(!grepl("13",Age))
 
 ```
 
@@ -86,7 +89,7 @@ Between `r format(min(dat$Date),"%d/%B/%Y")` and `r format(max(dat$Date),"%d/%B/
 ```{r dataMissing}
 
   datMiss <- dat %>%
-    summarise_all(funs(sum(is.na(.)))) %>%
+    summarise_all(list(~sum(is.na(.)))) %>%
     t() %>%
     data.frame() %>%
     rownames_to_column() %>%
@@ -123,7 +126,7 @@ Some of the key data fields were left blank in many reviews. For example, `r sum
 
 There are several variables in the data with relatively few levels: `r vec_to_sentence(unique(pull(datCount,variable)),";")`. Figure \@ref(fig:plotDiscrete) shows the most frequently occuring values in each of those variables.
 
-```{r plotDiscrete, fig.cap = "Most frequent values in each of the variables. Most reviews are from Adelaide based 50-64 year olds called Charmaine who visit Flinders Chase in January"}
+```{r plotDiscrete, fig.height = 10, fig.cap = "Most frequent values in each of the variables. Most reviews are from Adelaide based 50-64 year olds called Charmaine who visit Flinders Chase in January"}
   
   ggplot(datCount %>%
            dplyr::filter(n > 4)%>%
@@ -143,9 +146,11 @@ There are several variables in the data with relatively few levels: `r vec_to_se
 ```
 
 
-# Analysis
+# Overall analysis
 
 ```{r model}
+
+  modFile <- "out/model_stars-by-age=gender-year.rds"
 
   # variables to model
   varMod <- c("Y"
@@ -154,42 +159,52 @@ There are several variables in the data with relatively few levels: `r vec_to_se
               , "Age"
               , "Gender"
               , "Park"
-              , "Country"
+              , "State"
               )
   
   datMod <- dat %>%
-    dplyr::filter(Age != "13-17"
-                  , Year >= 2011
-                  ) %>%
+    dplyr::filter(Year > 2011, Year < 2019) %>%
     dplyr::mutate(Y = Stars -1
                   , medYear = median(Year)
                   , time = Year - medYear
+                  , State = fct_lump_min(State, min = 10)
+                  , Park = fct_lump_min(Park, min = 10)
                   ) %>%
     dplyr::select(varMod) %>%
     na.omit()
     
-  if(file_exists(paste0("out/Stars_mod.rds"))) {
+  if(file_exists(modFile)) {
     
-    mod <- read_rds(paste0("out/Stars_mod.rds"))
+    mod <- read_rds(modFile)
     
   } else {
     
     mod <-
       
-      stan_glm(
-        as.formula(paste("cbind(Y,4-Y) ~ Gender+Age+time+Month")) #binomial
+      stan_glmer(
+        as.formula(paste("cbind(Y,4-Y) ~ Gender*Age*time + (1|Month) + (1|Park) + (1|State)")) #binomial
         , data = datMod
         , family = binomial
-        , chains = 5
-        , iter = 500
+        #, chains = 5
+        #, iter = 500
         , cores = useCores
       )
     
-    saveRDS(mod,paste0("out/Stars_mod.rds"))
+    saveRDS(mod,modFile)
     
   }
 
 ```
+
+## Model
+
+Trend through time (year) in stars given by age and gender of reviewers (and the interaction of age, gender and time) was analysed using a Bayesian binomial generalised linear mixed model. The analysis was run using the rstanarm package [@RN4481] in R [@R-base]. Month (of review), Park (visited by reviewer) and State (of origin of reviewer) were treated as random effects in the analysis. Each reviewer was then assumed to provide an independent data point for the analysis. A time field was generated as $time = min(Year) + (max(Year) - min(Year))/2$. The model specification was:
+
+``r format(formula(mod))`` where `Y` is Stars-1.
+
+## Model diagnostics
+
+Figure \@ref(fig:mixing) shows that each of the chains used to estimate model parameters converged around similar values for each parameter.
 
 ```{r mixing, fig.cap = "All chains converged around the same values for each of the model paramaters (first 10 shown here)"}
 
@@ -199,6 +214,8 @@ There are several variables in the data with relatively few levels: `r vec_to_se
 
 ---
 
+Figure \@ref(fig:rhat) provides further support for convergence of the chains as no values are markedly different to 1.0.
+
 ```{r rhat, fig.cap = "Rhat values show no reason for concern"}
 
   plot(mod, "rhat_hist")
@@ -206,6 +223,8 @@ There are several variables in the data with relatively few levels: `r vec_to_se
 ```
 
 ---
+
+Figure \@ref(fig:fit) shows how (a sample of) the model runs (in light blue) compare with the original data (shown in dark blue).
 
 ```{r fit, fig.cap = "The model runs under estimate four stars and over estimate three stars relative to the data"}
 
@@ -216,18 +235,7 @@ There are several variables in the data with relatively few levels: `r vec_to_se
 
 ---
 
-```{r prop0, fig.cap = "The model runs tend to over estimate zero (1 star)"}
-
-  prop_zero <- function(x) mean(x == 0)
-
-  pp_check(mod
-           , plotfun = "stat"
-           , stat = "prop_zero"
-           )
-
-```
-
----
+Figure \@ref(fig:meanVsSd) shows how the mean and standard deviation of the model runs (in light blue) compare with that of the original data (in dark blue).
 
 ```{r meanVsSd, fig.cap = "Collectively the model runs do a reasonable job estimating the data"}
 
@@ -237,11 +245,15 @@ There are several variables in the data with relatively few levels: `r vec_to_se
 
 ---
 
+## Model predictions
+
+In order to better understand how the data and resulting model are able to inform management, a number (4000) of simulations were made based on the model results (strictly, draws were made from the posterior predictive distribution). Each simulation generated a prediction based on a single draw of the model parameters from their predicted distributions. Table \@ref(tab:predict) shows a summary of these results.
+
 ```{r predict}
 
   # Use the model to predict results over variables of interest
   modPred <- datMod %>%
-    dplyr::select(time,Month,Age,Gender) %>%
+    dplyr::select(time,Age,Gender) %>%
     unique() %>%
     dplyr::mutate(col = row.names(.)
                   , Y = 4
@@ -258,36 +270,212 @@ There are several variables in the data with relatively few levels: `r vec_to_se
     (function(x) dplyr::bind_cols(x %>% dplyr::select(-value),value = as.numeric(x$value))) %>%
     dplyr::mutate(Year = unique(.$medYear) + time
                   , Stars = value + 1
-                  , Month = as.factor(Month, levels = levels(datMod$Month))
+                  #, Month = as.factor(Month, levels = levels(datMod$Month))
                   )
 
   # summarise the results
   modRes <- as_tibble(modPred) %>%
-    dplyr::group_by(Year,Month,Age,Gender) %>%
+    dplyr::group_by(Year,Age,Gender) %>%
     dplyr::summarise(n = n()
                      , nCheck = nrow(as_tibble(mod))
                      , modMedian = quantile(Stars,0.5)
                      , modMean = mean(Stars)
-                     , modci90lo = quantile(Stars, 0.05)
-                     , modci90up = quantile(Stars, 0.95)
+                     , modci90lo = quantile(Stars, 0.025)
+                     , modci90up = quantile(Stars, 0.975)
                      , ci = modci90up-modci90lo
-                     , text = paste0(round(ci,2)," (",round(modci90lo,2)," to ",round(modci90up,2),")")
+                     , text = paste0(round(modMedian,2)," (",round(modci90lo,2)," to ",round(modci90up,2),")")
                      ) %>%
     dplyr::ungroup() %>%
     dplyr::mutate_if(is.numeric,round,2)
   
-    
-
+  kable(modRes %>%
+          dplyr::select(Year,Age,Gender,modMean,`Median and range in 90% credible intervals`=text)
+        , caption = "Summary of model results"
+        )
 
 ```
 
-```{r park}
+---
 
-  ggplot(modPred,aes(Stars,y=..prop..,fill=Month)) +
-    geom_bar(position = "dodge") +
+Figure \@ref(fig:modResult) shows a plot of the model results. Overwhelmingly, reviewers give 5 stars, irrespective of age or gender.
+
+```{r modResult, fig.cap = "Model results. Most reviewers give 5 stars irrespective of age or gender. The lower 95% credible intervals go to three stars in almost every case - i.e. more than 95% of responses are three stars or more. 18-24 year old males in 2017 are the main exception - they have a mean of 4 stars with 95% credible intervals stretching from 1-5"}
+
+  ggplot(data=modRes,aes(Year,modMedian,group=Age)) +
+    geom_line() +
+    geom_ribbon(aes(ymin = modci90lo, ymax = modci90up, fill = Age), alpha = 0.6) +
+    scale_colour_viridis_d() +
     scale_fill_viridis_d() +
-    coord_flip()
+    facet_grid(Age~Gender
+               #, scales="free"
+               ) +
+    labs(y = "Median credible value for Stars"
+         , subtitle = "Shading represents 95% credible intervals"
+         )
+
+```
+
+# Park
+
+# Park analysis
+
+```{r model2}
+
+  modFile <- "out/model_stars-by-park.rds"
+
+  # variables to model
+  varMod <- c("Y"
+              , "Age"
+              , "Gender"
+              , "Park"
+              , "State"
+              )
+  
+  datMod <- dat %>%
+    dplyr::filter(Year > 2011, Year < 2019) %>%
+    dplyr::mutate(Y = Stars -1
+                  , State = fct_lump_min(State, min = 100)
+                  , Park = fct_lump_min(Park, min = 100)
+                  ) %>%
+    dplyr::select(varMod) %>%
+    na.omit()
+    
+  if(file_exists(modFile)) {
+    
+    mod <- read_rds(modFile)
+    
+  } else {
+    
+    mod <-
+      
+      stan_glmer(
+        as.formula(paste("cbind(Y,4-Y) ~ Gender*Age*Park + (1|State)")) #binomial
+        , data = datMod
+        , family = binomial
+        #, chains = 5
+        #, iter = 500
+        , cores = useCores
+      )
+    
+    saveRDS(mod,modFile)
+    
+  }
+
+```
+
+## Model
+
+Stars given to a park were analysed by age, gender and origin of reviewer using a Bayesian binomial generalised linear mixed model. The analysis was run using the rstanarm package [@RN4481] in R [@R-base]. The model specification was:
+
+``r format(formula(mod))`` where `Y` is Stars-1.
+
+## Model diagnostics
+
+Figure \@ref(fig:mixing2) shows that each of the chains used to estimate model parameters converged around similar values for each parameter.
+
+```{r mixing2, fig.cap = "All chains converged around the same values for each of the model paramaters (first 10 shown here)"}
+
+  stan_trace(mod)
+
+```
+
+---
+
+Figure \@ref(fig:rhat2) provides further support for convergence of the chains as no values are markedly different to 1.0.
+
+```{r rhat2, fig.cap = "Rhat values show no reason for concern"}
+
+  plot(mod, "rhat_hist")
+
+```
+
+---
+
+Figure \@ref(fig:fit2) shows how (a sample of) the model runs (in light blue) compare with the original data (shown in dark blue).
+
+```{r fit2, fig.cap = "The model runs under estimate four stars and over estimate three stars relative to the data"}
+
+  # Model fit
+  pp_check(mod)
+
+```
+
+---
+
+Figure \@ref(fig:meanVsSd2) shows how the mean and standard deviation of the model runs (in light blue) compare with that of the original data (in dark blue).
+
+```{r meanVsSd2, fig.cap = "Collectively the model runs do a reasonable job estimating the data"}
+
+  pp_check(mod, plotfun = "stat_2d", stat = c("mean", "sd"))
+
+```
+
+---
+
+## Model predictions
+
+In order to better understand how the data and resulting model are able to inform management, a number (4000) of simulations were made based on the model results (strictly, draws were made from the posterior predictive distribution). Each simulation generated a prediction based on a single draw of the model parameters from their predicted distributions. Table \@ref(tab:predict) shows a summary of these results.
+
+```{r predict}
+
+  # Use the model to predict results over variables of interest
+  modPred <- datMod %>%
+    dplyr::select(Age,Gender,Park) %>%
+    unique() %>%
+    dplyr::mutate(col = row.names(.)
+                  , Y = 4
+                  , medYear = median(dat$Year)
+                  ) %>%
+    dplyr::left_join(as_tibble(posterior_predict(mod
+                                                 , newdata = .
+                                                 , re.form = NA
+                                                 )
+                               ) %>%
+                       tibble::rownames_to_column(var = "row") %>%
+                       tidyr::gather(col,value,2:ncol(.))
+                     ) %>%
+    (function(x) dplyr::bind_cols(x %>% dplyr::select(-value),value = as.numeric(x$value))) %>%
+    dplyr::mutate(Stars = value + 1
+                  #, Month = as.factor(Month, levels = levels(datMod$Month))
+                  )
+
+  # summarise the results
+  modRes <- as_tibble(modPred) %>%
+    dplyr::group_by(Age,Gender,Park) %>%
+    dplyr::summarise(n = n()
+                     , nCheck = nrow(as_tibble(mod))
+                     , modMedian = quantile(Stars,0.5)
+                     , modMean = mean(Stars)
+                     , modci90lo = quantile(Stars, 0.025)
+                     , modci90up = quantile(Stars, 0.975)
+                     , ci = modci90up-modci90lo
+                     , text = paste0(round(modMedian,2)," (",round(modci90lo,2)," to ",round(modci90up,2),")")
+                     ) %>%
+    dplyr::ungroup() %>%
+    dplyr::mutate_if(is.numeric,round,2)
+  
+  kable(modRes %>%
+          dplyr::select(Year,Age,Gender,modMean,`Median and range in 90% credible intervals`=text)
+        , caption = "Summary of model results"
+        )
+
+```
+
+```{r modResult, fig.cap = "Model results. Most reviewers give 5 stars irrespective of age or gender. The lower 95% credible intervals go to three stars in almost every case - i.e. more than 95% of responses are three stars or more. 18-24 year old males in 2017 are the main exception - they have a mean of 4 stars with 95% credible intervals stretching from 1-5"}
+
+  ggplot(data=modRes,aes(Age,modMedian,group=Age)) +
+    geom_point(aes(colour = Age)) +
+    geom_ribbon(aes(ymin = modci90lo, ymax = modci90up, fill = Age), alpha = 0.6) +
+    scale_colour_viridis_d() +
+    scale_fill_viridis_d() +
+    facet_grid(Gender~Park
+               #, scales="free"
+               ) +
+    labs(y = "Median credible value for Stars"
+         , subtitle = "Shading represents 95% credible intervals"
+         )
 
 ```
 
 
+# References
