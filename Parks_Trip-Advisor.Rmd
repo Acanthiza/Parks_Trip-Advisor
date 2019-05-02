@@ -150,7 +150,7 @@ There are several variables in the data with relatively few levels: `r vec_to_se
 
 ```{r model}
 
-  modFile <- "out/model_stars-by-age=gender-year.rds"
+  modFile <- "out/model_stars-by-age-gender-year.rds"
 
   # variables to model
   varMod <- c("Y"
@@ -167,8 +167,8 @@ There are several variables in the data with relatively few levels: `r vec_to_se
     dplyr::mutate(Y = Stars -1
                   , medYear = median(Year)
                   , time = Year - medYear
-                  , State = fct_lump_min(State, min = 10)
-                  , Park = fct_lump_min(Park, min = 10)
+                  , State = fct_lump(State, n = 10)
+                  , Park = fct_lump(Park, n = 10)
                   ) %>%
     dplyr::select(varMod) %>%
     na.omit()
@@ -279,7 +279,7 @@ In order to better understand how the data and resulting model are able to infor
     dplyr::summarise(n = n()
                      , nCheck = nrow(as_tibble(mod))
                      , modMedian = quantile(Stars,0.5)
-                     , modMean = mean(Stars)
+                     , Mean = mean(Stars)
                      , modci90lo = quantile(Stars, 0.025)
                      , modci90up = quantile(Stars, 0.975)
                      , ci = modci90up-modci90lo
@@ -289,7 +289,7 @@ In order to better understand how the data and resulting model are able to infor
     dplyr::mutate_if(is.numeric,round,2)
   
   kable(modRes %>%
-          dplyr::select(Year,Age,Gender,modMean,`Median and range in 90% credible intervals`=text)
+          dplyr::select(Year,Age,Gender,Mean,`Median and range in 90% credible intervals`=text)
         , caption = "Summary of model results"
         )
 
@@ -299,9 +299,9 @@ In order to better understand how the data and resulting model are able to infor
 
 Figure \@ref(fig:modResult) shows a plot of the model results. Overwhelmingly, reviewers give 5 stars, irrespective of age or gender.
 
-```{r modResult, fig.cap = "Model results. Most reviewers give 5 stars irrespective of age or gender. The lower 95% credible intervals go to three stars in almost every case - i.e. more than 95% of responses are three stars or more. 18-24 year old males in 2017 are the main exception - they have a mean of 4 stars with 95% credible intervals stretching from 1-5"}
+```{r modResult, fig.cap = "Model results. Most reviewers give 5 stars irrespective of age or gender. The lower 95% credible intervals go to three stars in almost every case - i.e. more than 95% of responses are three stars or more. Older males (65+ years old) - only in 2013 and 2014 were they most likely to give 5 stars"}
 
-  ggplot(data=modRes,aes(Year,modMedian,group=Age)) +
+  ggplot(data=modRes,aes(Year,Mean,group=Age)) +
     geom_line() +
     geom_ribbon(aes(ymin = modci90lo, ymax = modci90up, fill = Age), alpha = 0.6) +
     scale_colour_viridis_d() +
@@ -309,7 +309,7 @@ Figure \@ref(fig:modResult) shows a plot of the model results. Overwhelmingly, r
     facet_grid(Age~Gender
                #, scales="free"
                ) +
-    labs(y = "Median credible value for Stars"
+    labs(y = "Mean credible value for Stars"
          , subtitle = "Shading represents 95% credible intervals"
          )
 
@@ -325,6 +325,8 @@ Figure \@ref(fig:modResult) shows a plot of the model results. Overwhelmingly, r
 
   # variables to model
   varMod <- c("Y"
+              , "time"
+              #, "Month"
               , "Age"
               , "Gender"
               , "Park"
@@ -334,8 +336,10 @@ Figure \@ref(fig:modResult) shows a plot of the model results. Overwhelmingly, r
   datMod <- dat %>%
     dplyr::filter(Year > 2011, Year < 2019) %>%
     dplyr::mutate(Y = Stars -1
-                  , State = fct_lump_min(State, min = 100)
-                  , Park = fct_lump_min(Park, min = 100)
+                  , medYear = median(Year)
+                  , time = Year - medYear
+                  , State = fct_lump(State, n = 10)
+                  , Park = fct_lump(Park, n = 10)
                   ) %>%
     dplyr::select(varMod) %>%
     na.omit()
@@ -349,9 +353,10 @@ Figure \@ref(fig:modResult) shows a plot of the model results. Overwhelmingly, r
     mod <-
       
       stan_glmer(
-        as.formula(paste("cbind(Y,4-Y) ~ Gender*Age*Park + (1|State)")) #binomial
+        as.formula(paste("cbind(Y,4-Y) ~ time*Park + (1|Age) + (1|Gender) + (1|State)")) #binomial
         , data = datMod
         , family = binomial
+        , adapt_delta = 0.99
         #, chains = 5
         #, iter = 500
         , cores = useCores
@@ -414,13 +419,13 @@ Figure \@ref(fig:meanVsSd2) shows how the mean and standard deviation of the mod
 
 ## Model predictions
 
-In order to better understand how the data and resulting model are able to inform management, a number (4000) of simulations were made based on the model results (strictly, draws were made from the posterior predictive distribution). Each simulation generated a prediction based on a single draw of the model parameters from their predicted distributions. Table \@ref(tab:predict) shows a summary of these results.
+In order to better understand how the data and resulting model are able to inform management, a number (4000) of simulations were made based on the model results (strictly, draws were made from the posterior predictive distribution). Each simulation generated a prediction based on a single draw of the model parameters from their predicted distributions. Table \@ref(tab:predict2) shows a summary of these results.
 
-```{r predict}
+```{r predict2}
 
   # Use the model to predict results over variables of interest
   modPred <- datMod %>%
-    dplyr::select(Age,Gender,Park) %>%
+    dplyr::select(time,Park) %>%
     unique() %>%
     dplyr::mutate(col = row.names(.)
                   , Y = 4
@@ -435,45 +440,52 @@ In order to better understand how the data and resulting model are able to infor
                        tidyr::gather(col,value,2:ncol(.))
                      ) %>%
     (function(x) dplyr::bind_cols(x %>% dplyr::select(-value),value = as.numeric(x$value))) %>%
-    dplyr::mutate(Stars = value + 1
+    dplyr::mutate(Year = unique(.$medYear) + time
+                  , Stars = value + 1
                   #, Month = as.factor(Month, levels = levels(datMod$Month))
                   )
 
   # summarise the results
   modRes <- as_tibble(modPred) %>%
-    dplyr::group_by(Age,Gender,Park) %>%
+    dplyr::group_by(Year,Park) %>%
     dplyr::summarise(n = n()
                      , nCheck = nrow(as_tibble(mod))
                      , modMedian = quantile(Stars,0.5)
-                     , modMean = mean(Stars)
+                     , Mean = mean(Stars)
                      , modci90lo = quantile(Stars, 0.025)
                      , modci90up = quantile(Stars, 0.975)
                      , ci = modci90up-modci90lo
                      , text = paste0(round(modMedian,2)," (",round(modci90lo,2)," to ",round(modci90up,2),")")
                      ) %>%
     dplyr::ungroup() %>%
-    dplyr::mutate_if(is.numeric,round,2)
+    dplyr::left_join(datMod %>% dplyr::count(Park) %>% dplyr::rename(reviews=n)) %>%
+    dplyr::mutate_if(is.numeric,round,2) %>%
+    dplyr::mutate(label = Park
+                  , label = paste0(label,": ",reviews," reviews")
+                  )
   
   kable(modRes %>%
-          dplyr::select(Year,Age,Gender,modMean,`Median and range in 90% credible intervals`=text)
+          dplyr::select(Park,Year,Mean,`Median and range in 90% credible intervals`=text) %>%
+          dplyr::arrange(Park,Year)
         , caption = "Summary of model results"
         )
 
 ```
 
-```{r modResult, fig.cap = "Model results. Most reviewers give 5 stars irrespective of age or gender. The lower 95% credible intervals go to three stars in almost every case - i.e. more than 95% of responses are three stars or more. 18-24 year old males in 2017 are the main exception - they have a mean of 4 stars with 95% credible intervals stretching from 1-5"}
+```{r modResult2, fig.cap = "Model results. "}
 
-  ggplot(data=modRes,aes(Age,modMedian,group=Age)) +
-    geom_point(aes(colour = Age)) +
-    geom_ribbon(aes(ymin = modci90lo, ymax = modci90up, fill = Age), alpha = 0.6) +
+  ggplot(data=modRes,aes(Year,Mean)) +
+    geom_line() +
+    geom_ribbon(aes(ymin = modci90lo, ymax = modci90up), alpha = 0.6) +
     scale_colour_viridis_d() +
     scale_fill_viridis_d() +
-    facet_grid(Gender~Park
-               #, scales="free"
+    facet_wrap(~label
+               , labeller = labeller(label = label_wrap_gen(20))
                ) +
-    labs(y = "Median credible value for Stars"
+    labs(y = "Mean credible value for Stars"
          , subtitle = "Shading represents 95% credible intervals"
-         )
+         ) +
+    theme(axis.text.x = element_text(angle = 60))
 
 ```
 
