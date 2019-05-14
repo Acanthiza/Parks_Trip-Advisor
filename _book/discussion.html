@@ -5,11 +5,11 @@
 
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>2 Data exploration | Analysis of Trip Advisor data relating to South Australian parks</title>
-  <meta name="description" content="2 Data exploration | Analysis of Trip Advisor data relating to South Australian parks">
+  <title>7 Discussion | Analysis of Trip Advisor data relating to South Australian parks</title>
+  <meta name="description" content="7 Discussion | Analysis of Trip Advisor data relating to South Australian parks">
   <meta name="generator" content="bookdown  and GitBook 2.6.7">
 
-  <meta property="og:title" content="2 Data exploration | Analysis of Trip Advisor data relating to South Australian parks" />
+  <meta property="og:title" content="7 Discussion | Analysis of Trip Advisor data relating to South Australian parks" />
   <meta property="og:type" content="book" />
   
   
@@ -17,7 +17,7 @@
   
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="2 Data exploration | Analysis of Trip Advisor data relating to South Australian parks" />
+  <meta name="twitter:title" content="7 Discussion | Analysis of Trip Advisor data relating to South Australian parks" />
   
   
   
@@ -31,8 +31,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   
   
-<link rel="prev" href="introduction.html">
-<link rel="next" href="age-and-gender.html">
+<link rel="prev" href="word-analysis.html">
+<link rel="next" href="references.html">
 <script src="libs/jquery-2.2.3/jquery.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
@@ -115,31 +115,31 @@
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="data-exploration" class="section level1">
-<h1><span class="header-section-number">2</span> Data exploration</h1>
-<div id="summary" class="section level2">
-<h2><span class="header-section-number">2.1</span> Summary</h2>
-<p>Between 16/May/2004 and 02/November/2019 there were 3849 reviews on TripAdvisor that could be associated with South Australian parks.</p>
+<div id="discussion" class="section level1">
+<h1><span class="header-section-number">7</span> Discussion</h1>
+<div id="questions" class="section level2">
+<h2><span class="header-section-number">7.1</span> Questions</h2>
+<p>It is now possible to answer the questions posed at the start with respect to the TripAdvisor data.</p>
+<div id="what-is-the-effect-of-age-and-gender-on-the-rating-given" class="section level3">
+<h3><span class="header-section-number">7.1.1</span> What is the effect of age and gender on the rating given?</h3>
+<p>There is very little effect of age and gender on stars. 18-24 year old males had the lowest mean credible estimate for stars but this was still a relatively healthy 3.61 stars.</p>
 </div>
-<div id="missing-data" class="section level2">
-<h2><span class="header-section-number">2.2</span> Missing data</h2>
-<p>Some of the key data fields were left blank in many reviews. For example, 1714 (45%) reviews did not provide their gender and 1987 (52%) didn’t provide their age. Figure <a href="data-exploration.html#fig:plotMissing">2.1</a> shows the percentage of reviews that did not provide information against each field.</p>
-<div class="figure"><span id="fig:plotMissing"></span>
-<img src="_main_files/figure-html/plotMissing-1.png" alt="A large proportion of reviews did not answer some questions, particularly Gender and Age" width="672" />
-<p class="caption">
-Figure 2.1: A large proportion of reviews did not answer some questions, particularly Gender and Age
-</p>
+<div id="what-is-the-effect-of-the-park-visited-on-the-rating-given" class="section level3">
+<h3><span class="header-section-number">7.1.2</span> What is the effect of the park visited on the rating given?</h3>
+<p>There is little effect of park on the rating given. In the last year there was only 0.54 stars difference between the maximum and minimum mean credible estimate for stars given to parks in the dataset. This is only 10.8% of the possible range of 1 to 5.</p>
+</div>
+<div id="what-is-the-effect-of-the-origin-of-a-reviewer-on-the-rating-given" class="section level3">
+<h3><span class="header-section-number">7.1.3</span> What is the effect of the origin of a reviewer on the rating given?</h3>
+<p>There is very little effect of the origin of a reviewer on the rating given. In the last year, there was only 0.4 stars or 8% of the possible difference.</p>
+</div>
+<div id="summary-1" class="section level3">
+<h3><span class="header-section-number">7.1.4</span> Summary</h3>
+<p>The TripAdvisor data has little resolution in stars given for the attributes available for analysis. Most reviewers give South Australian DEW managed parks very good reviews - roughly 4.5 stars on average.</p>
 </div>
 </div>
-<div id="count-of-reviews" class="section level2">
-<h2><span class="header-section-number">2.3</span> Count of reviews</h2>
-<p>There are several variables in the data with relatively few levels: Age; City; Country; Gender; id; Month; Park; Stars; State; User; and Year. Figure <a href="data-exploration.html#fig:plotDiscrete">2.2</a> shows the most frequently occuring values in each of those variables.</p>
-<div class="figure"><span id="fig:plotDiscrete"></span>
-<img src="_main_files/figure-html/plotDiscrete-1.png" alt="Most frequent values in each of the variables. Most reviews are from Adelaide based 50-64 year olds called Charmaine who visit Flinders Chase in January" width="672" />
-<p class="caption">
-Figure 2.2: Most frequent values in each of the variables. Most reviews are from Adelaide based 50-64 year olds called Charmaine who visit Flinders Chase in January
-</p>
-</div>
+<div id="words-used-in-reviews" class="section level2">
+<h2><span class="header-section-number">7.2</span> Words used in reviews</h2>
+<p>As for the stars analysis, the word analysis showed overwhelmingly positive words were used to describe both overall parks (Figures <a href="word-analysis.html#fig:title">6.1</a> &amp; <a href="word-analysis.html#fig:review">6.2</a>) or for specific parks (Figures <a href="word-analysis.html#fig:parkTitle">6.3</a> &amp; <a href="word-analysis.html#fig:parkReview">6.4</a>).</p>
 </div>
 </div>
             </section>
@@ -147,8 +147,8 @@ Figure 2.2: Most frequent values in each of the variables. Most reviews are from
           </div>
         </div>
       </div>
-<a href="introduction.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="age-and-gender.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="word-analysis.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="references.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>

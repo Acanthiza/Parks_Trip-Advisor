@@ -10,7 +10,7 @@ output:
     css: style.css
     keep_md: no
 csl:                          "common/BibStyle.csl"
-bibliography:                 ["common/refs.bib","common/packageCitations.bib","common/RC.bib"]
+bibliography:                 ["common/refs.bib","rPackages.bib","common/RC.bib"]
 link-citations: yes
 editor_options: 
   chunk_output_type: console
@@ -35,7 +35,7 @@ editor_options:
   
   purrr::walk(packages,library,character.only=TRUE)
   
-  write_bib(packages,file="rPackages.bib",tweak=TRUE)
+  write_bib(c("base",packages),file="rPackages.bib",tweak=TRUE)
   
   source("common/functions.R")
   
@@ -116,13 +116,15 @@ DEW are interested to know what information is contained in TripAdvisor reviews.
     + Does reviewing more than one park lead to higher or lower ratings?
     + What parks are visited by people who review more than one park? Can we get a sense of itinerary from international visitors?
     
-These questions were treated as the following:
+After an initial data exploration, these questions were treated as the following:
 
 * What is the effect of age and gender on the rating given?
 * What is the effect of the park visited on the rating given?
 * What is the effect of the origin of a reviewer on the rating given?
 
-These three analyses answer most of the questions posed by the community engagement branch. A further analysis of words used in the titles and reviews was also undertaken.
+These three analyses answer most of the questions posed by the community engagement branch but do not always examine interations, such as, say, the interaction of age and park on stars. This was done as sample size was very small for some groups, especially for low stars.
+
+A further analysis of words used in the titles and reviews was also undertaken.
 
 # Data exploration
 
@@ -493,7 +495,7 @@ In order to better understand how the data and resulting model are able to infor
                   )
 
   # summarise the results
-  modRes <- as_tibble(modPred) %>%
+  modRes2 <- as_tibble(modPred) %>%
     dplyr::group_by(Year,Park) %>%
     dplyr::summarise(n = n()
                      , nCheck = nrow(as_tibble(mod))
@@ -511,14 +513,16 @@ In order to better understand how the data and resulting model are able to infor
                   , label = paste0(label,": ",reviews," reviews")
                   )
   
-  kable(modRes %>%
+  modRes2Tab <- modRes2 %>%
           dplyr::select(Park,Year,Mean,`Median and range in 90% credible intervals`=text) %>%
           dplyr::group_by(Park) %>%
           dplyr::filter(Year == max(Year)) %>%
           dplyr::ungroup() %>%
           dplyr::mutate(Park = fct_reorder(Park,Mean,.desc = TRUE)) %>%
           dplyr::arrange(Park)
-        , caption = paste0("Summary of model results for the last year. ", modRes %>% dplyr::filter(Year == max(Year)) %>% dplyr::top_n(-3,Mean) %>% pull(Park) %>% vec_to_sentence(), " have the lowest stars (based on mean credible estimates)")
+  
+  kable(modRes2Tab
+        , caption = paste0("Summary of model results for the last year. ", modRes2Tab %>% dplyr::slice((nrow(.)-2):nrow(.)) %>% pull(Park) %>% vec_to_sentence(), " have the lowest stars (based on mean credible estimates)")
         )
   
 
@@ -528,7 +532,7 @@ In order to better understand how the data and resulting model are able to infor
 
 ```{r modResult2, fig.cap = "Model results - mean credible intervals. Belair and Point Labatt both seem to be getting increasingly negative reviews - although the mean credible estimate for both remains above 4 stars currently"}
 
-  ggplot(data=modRes,aes(Year,Mean,fill=Park)) +
+  ggplot(data=modRes2,aes(Year,Mean,fill=Park)) +
     geom_line() +
     geom_ribbon(aes(ymin = modci90lo, ymax = modci90up), alpha = 0.5) +
     facet_wrap(~label
@@ -673,7 +677,7 @@ In order to better understand how the data and resulting model are able to infor
                   )
 
   # summarise the results
-  modRes <- as_tibble(modPred) %>%
+  modRes3 <- as_tibble(modPred) %>%
     dplyr::group_by(Year,State) %>%
     dplyr::summarise(n = n()
                      , nCheck = nrow(as_tibble(mod))
@@ -691,14 +695,16 @@ In order to better understand how the data and resulting model are able to infor
                   , label = paste0(label,": ",reviews," reviews")
                   )
   
-  kable(modRes %>%
+  modRes3Tab <- modRes3 %>%
           dplyr::select(State,Year,Mean,`Median and range in 90% credible intervals`=text) %>%
           dplyr::group_by(State) %>%
           dplyr::filter(Year == max(Year)) %>%
           dplyr::ungroup() %>%
           dplyr::mutate(State = fct_reorder(State,Mean,.desc=TRUE)) %>%
           dplyr::arrange(State)
-        , caption = paste0("Summary of model results for the last year. ", modRes %>% dplyr::filter(Year == max(Year)) %>% dplyr::top_n(2,Mean) %>% pull(State) %>% vec_to_sentence(), " give the highest stars (based on mean credible estimates)")
+  
+  kable(modRes3Tab
+        , caption = paste0("Summary of model results for the last year. ", modRes3Tab %>% dplyr::slice(1:2) %>% pull(State) %>% vec_to_sentence(), " give the highest stars (based on mean credible estimates)")
         )
 
 ```
@@ -707,7 +713,7 @@ In order to better understand how the data and resulting model are able to infor
 
 ```{r modResult3, fig.cap = paste0("Model results - mean credible intervals. California and the North Island of New Zealand both appear to have increased the stars they give in reviews through time, however the total number of reviews are low in each case so this result should be treated cautiously. There is very little trend in stars given by origin of reviewers for other origins")}
 
-  ggplot(data=modRes,aes(Year,Mean,fill=State)) +
+  ggplot(data=modRes3,aes(Year,Mean,fill=State)) +
     geom_line() +
     geom_ribbon(aes(ymin = modci90lo, ymax = modci90up), alpha = 0.5) +
     scale_fill_viridis_d(end=0.9) +
@@ -857,6 +863,30 @@ Using the tidytext package [@R-tidytext], the text within the character fields `
   
 ```
 
+# Discussion
 
+## Questions
+
+It is now possible to answer the questions posed at the start with respect to the TripAdvisor data.
+
+### What is the effect of age and gender on the rating given?
+
+There is very little effect of age and gender on stars. 18-24 year old males had the lowest mean credible estimate for stars but this was still a relatively healthy `r modRes %>% dplyr::filter(Gender == "Male", Age =="18-24") %>% dplyr::filter(Year == max(Year)) %>% dplyr::pull(Mean)` stars.
+
+### What is the effect of the park visited on the rating given?
+
+There is little effect of park on the rating given. In the last year there was only `r modRes2 %>% dplyr::filter(Year == max(Year)) %>% dplyr::mutate(diff=Mean-min(Mean)) %>% pull(diff) %>% max()` stars difference between the maximum and minimum mean credible estimate for stars given to parks in the dataset. This is only `r 100*(modRes2 %>% dplyr::filter(Year == max(Year)) %>% dplyr::mutate(diff=Mean-min(Mean)) %>% pull(diff) %>% max())/5`% of the possible range of 1 to 5.
+
+### What is the effect of the origin of a reviewer on the rating given?
+
+There is very little effect of the origin of a reviewer on the rating given. In the last year, there was only `r modRes3 %>% dplyr::filter(Year == max(Year)) %>% dplyr::mutate(diff=Mean-min(Mean)) %>% pull(diff) %>% max()` stars or `r 100*(modRes3 %>% dplyr::filter(Year == max(Year)) %>% dplyr::mutate(diff=Mean-min(Mean)) %>% pull(diff) %>% max())/5`% of the possible difference.
+
+### Summary
+
+The TripAdvisor data has little resolution in stars given for the attributes available for analysis. Most reviewers give South Australian DEW managed parks very good reviews - roughly 4.5 stars on average.
+
+## Words used in reviews
+
+As for the stars analysis, the word analysis showed overwhelmingly positive words were used to describe both overall parks (Figures \@ref(fig:title) & \@ref(fig:review)) or for specific parks (Figures \@ref(fig:parkTitle) & \@ref(fig:parkReview)).
 
 # References

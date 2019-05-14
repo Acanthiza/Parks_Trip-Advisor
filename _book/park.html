@@ -88,7 +88,16 @@
 <li class="chapter" data-level="6.1" data-path="word-analysis.html"><a href="word-analysis.html#overall-sentiment"><i class="fa fa-check"></i><b>6.1</b> Overall sentiment</a></li>
 <li class="chapter" data-level="6.2" data-path="word-analysis.html"><a href="word-analysis.html#by-park-sentiment"><i class="fa fa-check"></i><b>6.2</b> By park sentiment</a></li>
 </ul></li>
-<li class="chapter" data-level="7" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i><b>7</b> References</a></li>
+<li class="chapter" data-level="7" data-path="discussion.html"><a href="discussion.html"><i class="fa fa-check"></i><b>7</b> Discussion</a><ul>
+<li class="chapter" data-level="7.1" data-path="discussion.html"><a href="discussion.html#questions"><i class="fa fa-check"></i><b>7.1</b> Questions</a><ul>
+<li class="chapter" data-level="7.1.1" data-path="discussion.html"><a href="discussion.html#what-is-the-effect-of-age-and-gender-on-the-rating-given"><i class="fa fa-check"></i><b>7.1.1</b> What is the effect of age and gender on the rating given?</a></li>
+<li class="chapter" data-level="7.1.2" data-path="discussion.html"><a href="discussion.html#what-is-the-effect-of-the-park-visited-on-the-rating-given"><i class="fa fa-check"></i><b>7.1.2</b> What is the effect of the park visited on the rating given?</a></li>
+<li class="chapter" data-level="7.1.3" data-path="discussion.html"><a href="discussion.html#what-is-the-effect-of-the-origin-of-a-reviewer-on-the-rating-given"><i class="fa fa-check"></i><b>7.1.3</b> What is the effect of the origin of a reviewer on the rating given?</a></li>
+<li class="chapter" data-level="7.1.4" data-path="discussion.html"><a href="discussion.html#summary-1"><i class="fa fa-check"></i><b>7.1.4</b> Summary</a></li>
+</ul></li>
+<li class="chapter" data-level="7.2" data-path="discussion.html"><a href="discussion.html#words-used-in-reviews"><i class="fa fa-check"></i><b>7.2</b> Words used in reviews</a></li>
+</ul></li>
+<li class="chapter" data-level="8" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i><b>8</b> References</a></li>
 </ul>
 
       </nav>
@@ -152,7 +161,7 @@ Figure 4.4: Collectively the model runs do a reasonable job estimating the data
 <h2><span class="header-section-number">4.3</span> Model predictions</h2>
 <p>In order to better understand how the data and resulting model are able to inform management, a number (4000) of simulations were made based on the model results (strictly, draws were made from the posterior predictive distribution). Each simulation generated a prediction based on a single draw of the model parameters from their predicted distributions. Table <a href="park.html#tab:predict2">4.1</a> shows a summary of these results.</p>
 <table>
-<caption><span id="tab:predict2">Table 4.1: </span>Summary of model results for the last year. Belair National Park, Granite Island and Point Labatt Conservation Park have the lowest stars (based on mean credible estimates)</caption>
+<caption><span id="tab:predict2">Table 4.1: </span>Summary of model results for the last year. Point Labatt Conservation Park, Granite Island and Belair National Park have the lowest stars (based on mean credible estimates)</caption>
 <thead>
 <tr class="header">
 <th align="left">Park</th>
@@ -165,7 +174,7 @@ Figure 4.4: Collectively the model runs do a reasonable job estimating the data
 <tr class="odd">
 <td align="left">Flinders Ranges National Park</td>
 <td align="right">2018</td>
-<td align="right">4.82</td>
+<td align="right">4.81</td>
 <td align="left">5 (4 to 5)</td>
 </tr>
 <tr class="even">
@@ -183,7 +192,7 @@ Figure 4.4: Collectively the model runs do a reasonable job estimating the data
 <tr class="even">
 <td align="left">Morialta Conservation Park</td>
 <td align="right">2018</td>
-<td align="right">4.65</td>
+<td align="right">4.64</td>
 <td align="left">5 (3 to 5)</td>
 </tr>
 <tr class="odd">
@@ -195,38 +204,38 @@ Figure 4.4: Collectively the model runs do a reasonable job estimating the data
 <tr class="even">
 <td align="left">Breakaways Conservation Park</td>
 <td align="right">2018</td>
-<td align="right">4.57</td>
+<td align="right">4.56</td>
 <td align="left">5 (3 to 5)</td>
 </tr>
 <tr class="odd">
 <td align="left">Waterfall Gully</td>
 <td align="right">2018</td>
-<td align="right">4.49</td>
+<td align="right">4.48</td>
 <td align="left">5 (3 to 5)</td>
 </tr>
 <tr class="even">
 <td align="left">Other</td>
 <td align="right">2018</td>
-<td align="right">4.46</td>
+<td align="right">4.45</td>
 <td align="left">5 (3 to 5)</td>
 </tr>
 <tr class="odd">
 <td align="left">Point Labatt Conservation Park</td>
 <td align="right">2018</td>
-<td align="right">4.38</td>
+<td align="right">4.35</td>
 <td align="left">5 (2 to 5)</td>
 </tr>
 <tr class="even">
 <td align="left">Granite Island</td>
 <td align="right">2018</td>
 <td align="right">4.34</td>
-<td align="left">5 (2 to 5)</td>
+<td align="left">5 (2.98 to 5)</td>
 </tr>
 <tr class="odd">
 <td align="left">Belair National Park</td>
 <td align="right">2018</td>
-<td align="right">4.28</td>
-<td align="left">4 (2 to 5)</td>
+<td align="right">4.27</td>
+<td align="left">5 (2 to 5)</td>
 </tr>
 </tbody>
 </table>

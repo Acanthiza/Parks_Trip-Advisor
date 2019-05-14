@@ -32,7 +32,7 @@
   
   
 <link rel="prev" href="origin.html">
-<link rel="next" href="references.html">
+<link rel="next" href="discussion.html">
 <script src="libs/jquery-2.2.3/jquery.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
@@ -88,7 +88,16 @@
 <li class="chapter" data-level="6.1" data-path="word-analysis.html"><a href="word-analysis.html#overall-sentiment"><i class="fa fa-check"></i><b>6.1</b> Overall sentiment</a></li>
 <li class="chapter" data-level="6.2" data-path="word-analysis.html"><a href="word-analysis.html#by-park-sentiment"><i class="fa fa-check"></i><b>6.2</b> By park sentiment</a></li>
 </ul></li>
-<li class="chapter" data-level="7" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i><b>7</b> References</a></li>
+<li class="chapter" data-level="7" data-path="discussion.html"><a href="discussion.html"><i class="fa fa-check"></i><b>7</b> Discussion</a><ul>
+<li class="chapter" data-level="7.1" data-path="discussion.html"><a href="discussion.html#questions"><i class="fa fa-check"></i><b>7.1</b> Questions</a><ul>
+<li class="chapter" data-level="7.1.1" data-path="discussion.html"><a href="discussion.html#what-is-the-effect-of-age-and-gender-on-the-rating-given"><i class="fa fa-check"></i><b>7.1.1</b> What is the effect of age and gender on the rating given?</a></li>
+<li class="chapter" data-level="7.1.2" data-path="discussion.html"><a href="discussion.html#what-is-the-effect-of-the-park-visited-on-the-rating-given"><i class="fa fa-check"></i><b>7.1.2</b> What is the effect of the park visited on the rating given?</a></li>
+<li class="chapter" data-level="7.1.3" data-path="discussion.html"><a href="discussion.html#what-is-the-effect-of-the-origin-of-a-reviewer-on-the-rating-given"><i class="fa fa-check"></i><b>7.1.3</b> What is the effect of the origin of a reviewer on the rating given?</a></li>
+<li class="chapter" data-level="7.1.4" data-path="discussion.html"><a href="discussion.html#summary-1"><i class="fa fa-check"></i><b>7.1.4</b> Summary</a></li>
+</ul></li>
+<li class="chapter" data-level="7.2" data-path="discussion.html"><a href="discussion.html#words-used-in-reviews"><i class="fa fa-check"></i><b>7.2</b> Words used in reviews</a></li>
+</ul></li>
+<li class="chapter" data-level="8" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i><b>8</b> References</a></li>
 </ul>
 
       </nav>
@@ -110,7 +119,7 @@
 <h1><span class="header-section-number">6</span> Word analysis</h1>
 <div id="overall-sentiment" class="section level2">
 <h2><span class="header-section-number">6.1</span> Overall sentiment</h2>
-<p>Using the tidytext package <span class="citation">(<span class="citeproc-not-found" data-reference-id="R-tidytext"><strong>???</strong></span>)</span>, the text within the character fields <code>Title</code> and <code>Review</code> were analysed. Figure <a href="word-analysis.html#fig:title">6.1</a> shows the ten most common positive, negative and neutral words given in titles. Figure <a href="word-analysis.html#fig:review">6.2</a> shows the same for reviews. The following words were reclassified as neutral from negative sentiment as they were overwhelmingly not used in a negative manner: wild; desert; falls; unbelievable; unusual; unexpected; miss; challenging; remarkable; steep; cold; dirt; rocky; crashing; downhill; shady; ruins; cave; and wedge.</p>
+<p>Using the tidytext package <span class="citation">(Robinson and Silge <a href="#ref-R-tidytext">2018</a>)</span>, the text within the character fields <code>Title</code> and <code>Review</code> were analysed. Figure <a href="word-analysis.html#fig:title">6.1</a> shows the ten most common positive, negative and neutral words given in titles. Figure <a href="word-analysis.html#fig:review">6.2</a> shows the same for reviews. The following words were reclassified as neutral from negative sentiment as they were overwhelmingly not used in a negative manner: wild; desert; falls; unbelievable; unusual; unexpected; miss; challenging; remarkable; steep; cold; dirt; rocky; crashing; downhill; shady; ruins; cave; and wedge.</p>
 <div class="figure"><span id="fig:title"></span>
 <img src="_main_files/figure-html/title-1.png" alt="Titles had words with positive sentiment much more frequently than words with negative sentiment" width="672" />
 <p class="caption">
@@ -140,13 +149,19 @@ Figure 6.4: Top ten words in the review text for each sentiment class (positive,
 </div>
 </div>
 </div>
+<h3> References</h3>
+<div id="refs" class="references">
+<div id="ref-R-tidytext">
+<p>Robinson, D., and Silge, J. (2018). ‘Tidytext: Text mining using ’dplyr’, ’ggplot2’, and other tidy tools’. Available at: <a href="https://CRAN.R-project.org/package=tidytext">https://CRAN.R-project.org/package=tidytext</a></p>
+</div>
+</div>
             </section>
 
           </div>
         </div>
       </div>
 <a href="origin.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="references.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="discussion.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
