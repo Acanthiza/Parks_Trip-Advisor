@@ -4,6 +4,8 @@
   library("tidyverse")
   library("fs")
   
+  file_delete("_main.Rmd")
+  
   render_book("rmd")
   
   outDir <- "S:/DEHTemp/Parks_Trip-Advisor/"

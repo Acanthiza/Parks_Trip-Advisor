@@ -5,11 +5,11 @@
 
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>7 References | Analysis of Trip Advisor data relating to South Australian parks</title>
-  <meta name="description" content="7 References | Analysis of Trip Advisor data relating to South Australian parks">
+  <title>6 Word analysis | Analysis of Trip Advisor data relating to South Australian parks</title>
+  <meta name="description" content="6 Word analysis | Analysis of Trip Advisor data relating to South Australian parks">
   <meta name="generator" content="bookdown  and GitBook 2.6.7">
 
-  <meta property="og:title" content="7 References | Analysis of Trip Advisor data relating to South Australian parks" />
+  <meta property="og:title" content="6 Word analysis | Analysis of Trip Advisor data relating to South Australian parks" />
   <meta property="og:type" content="book" />
   
   
@@ -17,7 +17,7 @@
   
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="7 References | Analysis of Trip Advisor data relating to South Australian parks" />
+  <meta name="twitter:title" content="6 Word analysis | Analysis of Trip Advisor data relating to South Australian parks" />
   
   
   
@@ -31,8 +31,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   
   
-<link rel="prev" href="word-analysis.html">
-
+<link rel="prev" href="origin.html">
+<link rel="next" href="references.html">
 <script src="libs/jquery-2.2.3/jquery.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
@@ -106,15 +106,37 @@
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="references" class="section level1">
-<h1><span class="header-section-number">7</span> References</h1>
-
-<div id="refs" class="references">
-<div>
-<p>R Core Team (2018). ‘R: A language and environment for statistical computing’. (R Foundation for Statistical Computing: Vienna, Austria.) Available at: <a href="https://www.R-project.org/">https://www.R-project.org/</a></p>
+<div id="word-analysis" class="section level1">
+<h1><span class="header-section-number">6</span> Word analysis</h1>
+<div id="overall-sentiment" class="section level2">
+<h2><span class="header-section-number">6.1</span> Overall sentiment</h2>
+<p>Using the tidytext package <span class="citation">(<span class="citeproc-not-found" data-reference-id="R-tidytext"><strong>???</strong></span>)</span>, the text within the character fields <code>Title</code> and <code>Review</code> were analysed. Figure <a href="word-analysis.html#fig:title">6.1</a> shows the ten most common positive, negative and neutral words given in titles. Figure <a href="word-analysis.html#fig:review">6.2</a> shows the same for reviews. The following words were reclassified as neutral from negative sentiment as they were overwhelmingly not used in a negative manner: wild; desert; falls; unbelievable; unusual; unexpected; miss; challenging; remarkable; steep; cold; dirt; rocky; crashing; downhill; shady; ruins; cave; and wedge.</p>
+<div class="figure"><span id="fig:title"></span>
+<img src="_main_files/figure-html/title-1.png" alt="Titles had words with positive sentiment much more frequently than words with negative sentiment" width="672" />
+<p class="caption">
+Figure 6.1: Titles had words with positive sentiment much more frequently than words with negative sentiment
+</p>
 </div>
-<div>
-<p>Stan Development Team (2016). rstanarm: Bayesian applied regression modeling via Stan. R package version 2.13.1. Report. Available at: <a href="http://mc-stan.org/">http://mc-stan.org/</a></p>
+<div class="figure"><span id="fig:review"></span>
+<img src="_main_files/figure-html/review-1.png" alt="Reviews used words with positive sentiment more frequently than words with negative sentiment" width="672" />
+<p class="caption">
+Figure 6.2: Reviews used words with positive sentiment more frequently than words with negative sentiment
+</p>
+</div>
+</div>
+<div id="by-park-sentiment" class="section level2">
+<h2><span class="header-section-number">6.2</span> By park sentiment</h2>
+<div class="figure"><span id="fig:parkTitle"></span>
+<img src="_main_files/figure-html/parkTitle-1.png" alt="Top ten words in the title text for each sentiment class (positive, negative and neutral) for the parks with the most reviews" width="672" />
+<p class="caption">
+Figure 6.3: Top ten words in the title text for each sentiment class (positive, negative and neutral) for the parks with the most reviews
+</p>
+</div>
+<div class="figure"><span id="fig:parkReview"></span>
+<img src="_main_files/figure-html/parkReview-1.png" alt="Top ten words in the review text for each sentiment class (positive, negative and neutral) for the parks with the most reviews" width="672" />
+<p class="caption">
+Figure 6.4: Top ten words in the review text for each sentiment class (positive, negative and neutral) for the parks with the most reviews
+</p>
 </div>
 </div>
 </div>
@@ -123,8 +145,8 @@
           </div>
         </div>
       </div>
-<a href="word-analysis.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-
+<a href="origin.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="references.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>

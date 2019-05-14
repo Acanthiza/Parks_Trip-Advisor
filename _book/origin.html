@@ -5,11 +5,11 @@
 
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>4 Park | Analysis of Trip Advisor data relating to South Australian parks</title>
-  <meta name="description" content="4 Park | Analysis of Trip Advisor data relating to South Australian parks">
+  <title>5 Origin | Analysis of Trip Advisor data relating to South Australian parks</title>
+  <meta name="description" content="5 Origin | Analysis of Trip Advisor data relating to South Australian parks">
   <meta name="generator" content="bookdown  and GitBook 2.6.7">
 
-  <meta property="og:title" content="4 Park | Analysis of Trip Advisor data relating to South Australian parks" />
+  <meta property="og:title" content="5 Origin | Analysis of Trip Advisor data relating to South Australian parks" />
   <meta property="og:type" content="book" />
   
   
@@ -17,7 +17,7 @@
   
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="4 Park | Analysis of Trip Advisor data relating to South Australian parks" />
+  <meta name="twitter:title" content="5 Origin | Analysis of Trip Advisor data relating to South Australian parks" />
   
   
   
@@ -31,8 +31,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   
   
-<link rel="prev" href="age-and-gender.html">
-<link rel="next" href="origin.html">
+<link rel="prev" href="park.html">
+<link rel="next" href="word-analysis.html">
 <script src="libs/jquery-2.2.3/jquery.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
@@ -106,56 +106,56 @@
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="park" class="section level1">
-<h1><span class="header-section-number">4</span> Park</h1>
-<div id="model-1" class="section level2">
-<h2><span class="header-section-number">4.1</span> Model</h2>
-<p>Trend through time (year) in stars given to a park (and the interaction of park and time) was analysed using a Bayesian binomial generalised linear mixed model. The analysis was run using the rstanarm package <span class="citation">(Stan Development Team <a href="#ref-RN4481">2016</a>)</span> in R <span class="citation">(R Core Team <a href="#ref-R-base">2018</a>)</span>. Age, gender and origin of reviewer were treated as random effects in the analysis. Each reviewer was then assumed to provide an independent data point for the analysis. A time field was generated as <span class="math inline">\(time = min(Year) + (max(Year) - min(Year))/2\)</span>. The model specification was:</p>
-<p><code>cbind(Y, 4 - Y) ~ time * Park + (1 | Age) + (1 | Gender) + (1 | ,     State)</code> where <code>Y</code> is Stars-1.</p>
+<div id="origin" class="section level1">
+<h1><span class="header-section-number">5</span> Origin</h1>
+<div id="model-2" class="section level2">
+<h2><span class="header-section-number">5.1</span> Model</h2>
+<p>Trend through time (year) in stars given by the origin of reviewers (and the interaction of origin and time) was analysed using a Bayesian binomial generalised linear mixed model. The analysis was run using the rstanarm package <span class="citation">(Stan Development Team <a href="#ref-RN4481">2016</a>)</span> in R <span class="citation">(R Core Team <a href="#ref-R-base">2018</a>)</span>. Age and gender of the reviewer and the park visisted were treated as random effects in the analysis. Each reviewer was then assumed to provide an independent data point for the analysis. A time field was generated as <span class="math inline">\(time = min(Year) + (max(Year) - min(Year))/2\)</span>. The model specification was:</p>
+<p><code>cbind(Y, 4 - Y) ~ time * State + (1 | Age) + (1 | Gender) + (1 | ,     Park)</code> where <code>Y</code> is Stars-1.</p>
 </div>
-<div id="model-diagnostics-1" class="section level2">
-<h2><span class="header-section-number">4.2</span> Model diagnostics</h2>
-<p>Figure <a href="park.html#fig:mixing2">4.1</a> shows that each of the chains used to estimate model parameters converged around similar values for each parameter.</p>
-<div class="figure"><span id="fig:mixing2"></span>
-<img src="_main_files/figure-html/mixing2-1.png" alt="All chains converged around the same values for each of the model paramaters (first 10 shown here)" width="672" />
+<div id="model-diagnostics-2" class="section level2">
+<h2><span class="header-section-number">5.2</span> Model diagnostics</h2>
+<p>Figure <a href="origin.html#fig:mixing3">5.1</a> shows that each of the chains used to estimate model parameters converged around similar values for each parameter.</p>
+<div class="figure"><span id="fig:mixing3"></span>
+<img src="_main_files/figure-html/mixing3-1.png" alt="All chains converged around the same values for each of the model paramaters (first 10 shown here)" width="672" />
 <p class="caption">
-Figure 4.1: All chains converged around the same values for each of the model paramaters (first 10 shown here)
+Figure 5.1: All chains converged around the same values for each of the model paramaters (first 10 shown here)
 </p>
 </div>
 <hr />
-<p>Figure <a href="park.html#fig:rhat2">4.2</a> provides further support for convergence of the chains as no values are markedly different to 1.0.</p>
-<div class="figure"><span id="fig:rhat2"></span>
-<img src="_main_files/figure-html/rhat2-1.png" alt="Rhat values show no reason for concern" width="672" />
+<p>Figure <a href="origin.html#fig:rhat3">5.2</a> provides further support for convergence of the chains as no values are markedly different to 1.0.</p>
+<div class="figure"><span id="fig:rhat3"></span>
+<img src="_main_files/figure-html/rhat3-1.png" alt="Rhat values show no reason for concern" width="672" />
 <p class="caption">
-Figure 4.2: Rhat values show no reason for concern
+Figure 5.2: Rhat values show no reason for concern
 </p>
 </div>
 <hr />
-<p>Figure <a href="park.html#fig:fit2">4.3</a> shows how (a sample of) the model runs (in light blue) compare with the original data (shown in dark blue).</p>
-<div class="figure"><span id="fig:fit2"></span>
-<img src="_main_files/figure-html/fit2-1.png" alt="The model runs under estimate four stars and over estimate three stars relative to the data" width="672" />
+<p>Figure <a href="origin.html#fig:fit3">5.3</a> shows how (a sample of) the model runs (in light blue) compare with the original data (shown in dark blue).</p>
+<div class="figure"><span id="fig:fit3"></span>
+<img src="_main_files/figure-html/fit3-1.png" alt="The model runs under estimate four stars and over estimate three stars relative to the data" width="672" />
 <p class="caption">
-Figure 4.3: The model runs under estimate four stars and over estimate three stars relative to the data
+Figure 5.3: The model runs under estimate four stars and over estimate three stars relative to the data
 </p>
 </div>
 <hr />
-<p>Figure <a href="park.html#fig:meanVsSd2">4.4</a> shows how the mean and standard deviation of the model runs (in light blue) compare with that of the original data (in dark blue).</p>
-<div class="figure"><span id="fig:meanVsSd2"></span>
-<img src="_main_files/figure-html/meanVsSd2-1.png" alt="Collectively the model runs do a reasonable job estimating the data" width="672" />
+<p>Figure <a href="origin.html#fig:meanVsSd3">5.4</a> shows how the mean and standard deviation of the model runs (in light blue) compare with that of the original data (in dark blue).</p>
+<div class="figure"><span id="fig:meanVsSd3"></span>
+<img src="_main_files/figure-html/meanVsSd3-1.png" alt="Collectively the model runs do a reasonable job estimating the data" width="672" />
 <p class="caption">
-Figure 4.4: Collectively the model runs do a reasonable job estimating the data
+Figure 5.4: Collectively the model runs do a reasonable job estimating the data
 </p>
 </div>
 <hr />
 </div>
-<div id="model-predictions-1" class="section level2">
-<h2><span class="header-section-number">4.3</span> Model predictions</h2>
-<p>In order to better understand how the data and resulting model are able to inform management, a number (4000) of simulations were made based on the model results (strictly, draws were made from the posterior predictive distribution). Each simulation generated a prediction based on a single draw of the model parameters from their predicted distributions. Table <a href="park.html#tab:predict2">4.1</a> shows a summary of these results.</p>
+<div id="model-predictions-2" class="section level2">
+<h2><span class="header-section-number">5.3</span> Model predictions</h2>
+<p>In order to better understand how the data and resulting model are able to inform management, a number (4000) of simulations were made based on the model results (strictly, draws were made from the posterior predictive distribution). Each simulation generated a prediction based on a single draw of the model parameters from their predicted distributions. Table <a href="origin.html#tab:predict3">5.1</a> shows a summary of these results.</p>
 <table>
-<caption><span id="tab:predict2">Table 4.1: </span>Summary of model results for the last year. Belair National Park, Granite Island and Point Labatt Conservation Park have the lowest stars (based on mean credible estimates)</caption>
+<caption><span id="tab:predict3">Table 5.1: </span>Summary of model results for the last year. New South Wales and Queensland give the highest stars (based on mean credible estimates)</caption>
 <thead>
 <tr class="header">
-<th align="left">Park</th>
+<th align="left">State</th>
 <th align="right">Year</th>
 <th align="right">Mean</th>
 <th align="left">Median and range in 90% credible intervals</th>
@@ -163,78 +163,78 @@ Figure 4.4: Collectively the model runs do a reasonable job estimating the data
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left">Flinders Ranges National Park</td>
-<td align="right">2018</td>
-<td align="right">4.82</td>
+<td align="left">California</td>
+<td align="right">2017</td>
+<td align="right">4.90</td>
 <td align="left">5 (4 to 5)</td>
 </tr>
 <tr class="even">
-<td align="left">Flinders Chase National Park</td>
+<td align="left">Queensland</td>
 <td align="right">2018</td>
-<td align="right">4.77</td>
+<td align="right">4.72</td>
 <td align="left">5 (3 to 5)</td>
 </tr>
 <tr class="odd">
-<td align="left">Hallett Cove Conservation Park</td>
+<td align="left">New South Wales</td>
 <td align="right">2018</td>
-<td align="right">4.70</td>
-<td align="left">5 (3 to 5)</td>
-</tr>
-<tr class="even">
-<td align="left">Morialta Conservation Park</td>
-<td align="right">2018</td>
-<td align="right">4.65</td>
-<td align="left">5 (3 to 5)</td>
-</tr>
-<tr class="odd">
-<td align="left">Innes National Park</td>
-<td align="right">2018</td>
-<td align="right">4.62</td>
-<td align="left">5 (3 to 5)</td>
-</tr>
-<tr class="even">
-<td align="left">Breakaways Conservation Park</td>
-<td align="right">2018</td>
-<td align="right">4.57</td>
-<td align="left">5 (3 to 5)</td>
-</tr>
-<tr class="odd">
-<td align="left">Waterfall Gully</td>
-<td align="right">2018</td>
-<td align="right">4.49</td>
+<td align="right">4.66</td>
 <td align="left">5 (3 to 5)</td>
 </tr>
 <tr class="even">
 <td align="left">Other</td>
 <td align="right">2018</td>
-<td align="right">4.46</td>
+<td align="right">4.64</td>
 <td align="left">5 (3 to 5)</td>
 </tr>
 <tr class="odd">
-<td align="left">Point Labatt Conservation Park</td>
+<td align="left">England</td>
 <td align="right">2018</td>
-<td align="right">4.38</td>
-<td align="left">5 (2 to 5)</td>
+<td align="right">4.59</td>
+<td align="left">5 (3 to 5)</td>
 </tr>
 <tr class="even">
-<td align="left">Granite Island</td>
+<td align="left">Victoria</td>
 <td align="right">2018</td>
-<td align="right">4.34</td>
-<td align="left">5 (2 to 5)</td>
+<td align="right">4.59</td>
+<td align="left">5 (3 to 5)</td>
 </tr>
 <tr class="odd">
-<td align="left">Belair National Park</td>
+<td align="left">Australian Capital Territory</td>
 <td align="right">2018</td>
-<td align="right">4.28</td>
-<td align="left">4 (2 to 5)</td>
+<td align="right">4.57</td>
+<td align="left">5 (3 to 5)</td>
+</tr>
+<tr class="even">
+<td align="left">North Island</td>
+<td align="right">2018</td>
+<td align="right">4.55</td>
+<td align="left">5 (3 to 5)</td>
+</tr>
+<tr class="odd">
+<td align="left">South Australia</td>
+<td align="right">2018</td>
+<td align="right">4.52</td>
+<td align="left">5 (3 to 5)</td>
+</tr>
+<tr class="even">
+<td align="left">Western Australia</td>
+<td align="right">2018</td>
+<td align="right">4.52</td>
+<td align="left">5 (3 to 5)</td>
+</tr>
+<tr class="odd">
+<td align="left">Singapore</td>
+<td align="right">2018</td>
+<td align="right">4.32</td>
+<td align="left">5 (2 to 5)</td>
 </tr>
 </tbody>
 </table>
 <hr />
-<div class="figure"><span id="fig:modResult2"></span>
-<img src="_main_files/figure-html/modResult2-1.png" alt="Model results - mean credible intervals. Belair and Point Labatt both seem to be getting increasingly negative reviews - although the mean credible estimate for both remains above 4 stars currently" width="672" />
+<div class="figure"><span id="fig:modResult3"></span>
+<img src="_main_files/figure-html/modResult3-1.png" alt="Model results - mean credible intervals. California and the North Island of New Zealand both appear to have increased the stars they give in reviews through time, however the total number of reviews are low in each case so this result should be treated cautiously. There is very little trend in stars given by origin of reviewers for other origins" width="672" />
 <p class="caption">
-Figure 4.5: Model results - mean credible intervals. Belair and Point Labatt both seem to be getting increasingly negative reviews - although the mean credible estimate for both remains above 4 stars currently
+Figure 5.5: Model results - mean credible intervals. California and the North Island of New Zealand both appear to have increased the stars they give in reviews through time, however the total number of reviews are low in each case so this result should be treated cautiously. There is very little trend in stars given by origin of reviewers for other origins
 </p>
 </div>
 </div>
@@ -253,8 +253,8 @@ Figure 4.5: Model results - mean credible intervals. Belair and Point Labatt bot
           </div>
         </div>
       </div>
-<a href="age-and-gender.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="origin.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="park.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="word-analysis.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>

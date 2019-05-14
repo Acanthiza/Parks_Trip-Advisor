@@ -29,7 +29,8 @@ editor_options:
                 ,"rstan"
                 ,"rstanarm"
                 ,"ggridges"
-                ,"tmap"
+                #,"tmap"
+                ,"tidytext"
                 )
   
   purrr::walk(packages,library,character.only=TRUE)
@@ -47,10 +48,10 @@ editor_options:
   options(knitr.kable.NA = "")
   
   # Set mapping defaults
-  tmap_options(basemaps = c("OpenStreetMap.Mapnik"
-                            , "Esri.WorldImagery"
-                            )
-               )
+  # tmap_options(basemaps = c("OpenStreetMap.Mapnik"
+  #                           , "Esri.WorldImagery"
+  #                           )
+  #              )
   
   # reset ggplot default theme (rstanarm changes it for some reason)
   theme_set(theme_grey())
@@ -71,6 +72,7 @@ editor_options:
                   , Month = fct_reorder(Month,month)
                   , Yearmon = as_date(paste0("01/",Month,"/",Year),tz=Sys.timezone(),format="%d/%B/%Y")
                   , Age = gsub("18-34","18-24",Age)
+                  , id = row_number()
                   ) %>%
     dplyr::mutate_if(is.character,list(~gsub("^Null$|^Not given$",NA,.))) %>%
     dplyr::select(-month) %>%
@@ -78,11 +80,55 @@ editor_options:
 
 ```
 
+# Introduction
+
+DEW manages many parks across South Australia. Some of these parks have a 'page' on [TripAdvisor](https://www.tripadvisor.com.au/). For example, there is a page for [Ikara-Flinders Ranges National Park](https://www.tripadvisor.com.au/Attraction_Review-g499711-d6456334-Reviews-Flinders_Ranges_National_Park-Hawker_Flinders_Ranges_South_Australia.html).
+
+DEW are interested to know what information is contained in TripAdvisor reviews. Specifically, the following questions were identified by the community engagement branch:
+
+* Where are visitors from:
+     + Overall percentages – as in, of all the people who reviewed SA parks, 40 percent were Australian, 10 percent were English, 8 percent were American etc.
+     + By park percentages – as in, of all the people who reviewed Belair National Park, 40 percent were Australian, 10 percent were English, 8 percent were American etc.
+* What gender are visitors:
+    + Overall percentages – as in, of all the people who reviewed SA parks, 45 percent were male and 55 percent were female
+    + By park percentages – as in, of all the people who reviewed Belair national park, 45 percent were male and 55 percent were female
+* What ages are visitors?
+    + Overall
+    + By individual park
+* When are reviews made? (As in, in which month is the quantity of reviews submitted to Trip Advisor the highest? In which month is the quantity of reviews submitted to Trip Advisor the lowest?)
+    + Overall
+    + By individual park
+* How does seasonality affect park ratings? (As in, parks receive most positive ratings in December and most negative ratings in May)
+    + Overall
+    + By individual park
+* Are males or females more likely to rate parks positively or negatively?
+    + Overall
+    + By individual park
+* Which country/state is more likely to rate parks positively or negatively?
+    + Overall
+    + By individual park
+* Which age is more likely to rate parks positively or negatively?
+    + Overall
+    + By individual park
+* Other possible questions
+    + SA analysis – Adelaide vs regional views of parks
+    + Multiple park reviews from one user:
+    + Does reviewing more than one park lead to higher or lower ratings?
+    + What parks are visited by people who review more than one park? Can we get a sense of itinerary from international visitors?
+    
+These questions were treated as the following:
+
+* What is the effect of age and gender on the rating given?
+* What is the effect of the park visited on the rating given?
+* What is the effect of the origin of a reviewer on the rating given?
+
+These three analyses answer most of the questions posed by the community engagement branch. A further analysis of words used in the titles and reviews was also undertaken.
+
 # Data exploration
 
 ## Summary
 
-Between `r format(min(dat$Date),"%d/%B/%Y")` and `r format(max(dat$Date),"%d/%B/%Y")` there were `r nrow(dat)` reviews on [Trip Advisor](https://www.tripadvisor.com.au/) that could be associated with South Australian parks.
+Between `r format(min(dat$Date),"%d/%B/%Y")` and `r format(max(dat$Date),"%d/%B/%Y")` there were `r nrow(dat)` reviews on TripAdvisor that could be associated with South Australian parks.
 
 ## Missing data
 
@@ -146,7 +192,7 @@ There are several variables in the data with relatively few levels: `r vec_to_se
 ```
 
 
-# Overall analysis
+# Age and gender
 
 ```{r model}
 
@@ -289,7 +335,10 @@ In order to better understand how the data and resulting model are able to infor
     dplyr::mutate_if(is.numeric,round,2)
   
   kable(modRes %>%
-          dplyr::select(Year,Age,Gender,Mean,`Median and range in 90% credible intervals`=text)
+          dplyr::select(Year,Age,Gender,Mean,`Median and range in 90% credible intervals`=text) %>%
+          dplyr::group_by(Age,Gender) %>%
+          dplyr::filter(Year == max(Year)) %>%
+          dplyr::ungroup()
         , caption = "Summary of model results"
         )
 
@@ -299,7 +348,7 @@ In order to better understand how the data and resulting model are able to infor
 
 Figure \@ref(fig:modResult) shows a plot of the model results. Overwhelmingly, reviewers give 5 stars, irrespective of age or gender.
 
-```{r modResult, fig.cap = "Model results. Most reviewers give 5 stars irrespective of age or gender. The lower 95% credible intervals go to three stars in almost every case - i.e. more than 95% of responses are three stars or more. Older males (65+ years old) - only in 2013 and 2014 were they most likely to give 5 stars"}
+```{r modResult, fig.cap = "Model results - mean credible intervals. Most reviewers give 5 stars irrespective of age or gender. The lower 95% credible intervals go to three stars in almost every case - i.e. more than 95% of responses are three stars or more. Only for 18-24 year old males in 2015 do the 95% credible intervals go to 1 star"}
 
   ggplot(data=modRes,aes(Year,Mean,group=Age)) +
     geom_line() +
@@ -309,15 +358,13 @@ Figure \@ref(fig:modResult) shows a plot of the model results. Overwhelmingly, r
     facet_grid(Age~Gender
                #, scales="free"
                ) +
-    labs(y = "Mean credible value for Stars"
+    labs(y = "Stars"
          , subtitle = "Shading represents 95% credible intervals"
          )
 
 ```
 
 # Park
-
-# Park analysis
 
 ```{r model2}
 
@@ -370,7 +417,7 @@ Figure \@ref(fig:modResult) shows a plot of the model results. Overwhelmingly, r
 
 ## Model
 
-Stars given to a park were analysed by age, gender and origin of reviewer using a Bayesian binomial generalised linear mixed model. The analysis was run using the rstanarm package [@RN4481] in R [@R-base]. The model specification was:
+Trend through time (year) in stars given to a park (and the interaction of park and time) was analysed using a Bayesian binomial generalised linear mixed model. The analysis was run using the rstanarm package [@RN4481] in R [@R-base]. Age, gender and origin of reviewer were treated as random effects in the analysis. Each reviewer was then assumed to provide an independent data point for the analysis. A time field was generated as $time = min(Year) + (max(Year) - min(Year))/2$. The model specification was:
 
 ``r format(formula(mod))`` where `Y` is Stars-1.
 
@@ -466,28 +513,350 @@ In order to better understand how the data and resulting model are able to infor
   
   kable(modRes %>%
           dplyr::select(Park,Year,Mean,`Median and range in 90% credible intervals`=text) %>%
-          dplyr::arrange(Park,Year)
-        , caption = "Summary of model results"
+          dplyr::group_by(Park) %>%
+          dplyr::filter(Year == max(Year)) %>%
+          dplyr::ungroup() %>%
+          dplyr::mutate(Park = fct_reorder(Park,Mean,.desc = TRUE)) %>%
+          dplyr::arrange(Park)
+        , caption = paste0("Summary of model results for the last year. ", modRes %>% dplyr::filter(Year == max(Year)) %>% dplyr::top_n(-3,Mean) %>% pull(Park) %>% vec_to_sentence(), " have the lowest stars (based on mean credible estimates)")
         )
+  
 
 ```
 
-```{r modResult2, fig.cap = "Model results. "}
+---
 
-  ggplot(data=modRes,aes(Year,Mean)) +
+```{r modResult2, fig.cap = "Model results - mean credible intervals. Belair and Point Labatt both seem to be getting increasingly negative reviews - although the mean credible estimate for both remains above 4 stars currently"}
+
+  ggplot(data=modRes,aes(Year,Mean,fill=Park)) +
     geom_line() +
-    geom_ribbon(aes(ymin = modci90lo, ymax = modci90up), alpha = 0.6) +
-    scale_colour_viridis_d() +
-    scale_fill_viridis_d() +
+    geom_ribbon(aes(ymin = modci90lo, ymax = modci90up), alpha = 0.5) +
     facet_wrap(~label
                , labeller = labeller(label = label_wrap_gen(20))
                ) +
     labs(y = "Mean credible value for Stars"
          , subtitle = "Shading represents 95% credible intervals"
          ) +
-    theme(axis.text.x = element_text(angle = 60))
+    theme(axis.text.x = element_text(angle = 90)
+          , legend.position = "none"
+          ) +
+    scale_fill_viridis_d(end = 0.9)
 
 ```
+
+# Origin
+
+```{r model3}
+
+  modFile <- "out/model_stars-by-origin.rds"
+
+  # variables to model
+  varMod <- c("Y"
+              , "time"
+              #, "Month"
+              , "Age"
+              , "Gender"
+              , "Park"
+              , "State"
+              )
+  
+  datMod <- dat %>%
+    dplyr::filter(Year > 2011, Year < 2019) %>%
+    dplyr::mutate(Y = Stars -1
+                  , medYear = median(Year)
+                  , time = Year - medYear
+                  , State = fct_lump(State, n = 10)
+                  , Park = fct_lump(Park, n = 10)
+                  ) %>%
+    dplyr::select(varMod) %>%
+    na.omit()
+    
+  if(file_exists(modFile)) {
+    
+    mod <- read_rds(modFile)
+    
+  } else {
+    
+    mod <-
+      
+      stan_glmer(
+        as.formula(paste("cbind(Y,4-Y) ~ time*State + (1|Age) + (1|Gender) + (1|Park)")) #binomial
+        , data = datMod
+        , family = binomial
+        , adapt_delta = 0.99
+        #, chains = 5
+        #, iter = 500
+        , cores = useCores
+      )
+    
+    saveRDS(mod,modFile)
+    
+  }
+
+```
+
+## Model
+
+Trend through time (year) in stars given by the origin of reviewers (and the interaction of origin and time) was analysed using a Bayesian binomial generalised linear mixed model. The analysis was run using the rstanarm package [@RN4481] in R [@R-base]. Age and gender of the reviewer and the park visisted were treated as random effects in the analysis. Each reviewer was then assumed to provide an independent data point for the analysis. A time field was generated as $time = min(Year) + (max(Year) - min(Year))/2$. The model specification was:
+
+``r format(formula(mod))`` where `Y` is Stars-1.
+
+## Model diagnostics
+
+Figure \@ref(fig:mixing3) shows that each of the chains used to estimate model parameters converged around similar values for each parameter.
+
+```{r mixing3, fig.cap = "All chains converged around the same values for each of the model paramaters (first 10 shown here)"}
+
+  stan_trace(mod)
+
+```
+
+---
+
+Figure \@ref(fig:rhat3) provides further support for convergence of the chains as no values are markedly different to 1.0.
+
+```{r rhat3, fig.cap = "Rhat values show no reason for concern"}
+
+  plot(mod, "rhat_hist")
+
+```
+
+---
+
+Figure \@ref(fig:fit3) shows how (a sample of) the model runs (in light blue) compare with the original data (shown in dark blue).
+
+```{r fit3, fig.cap = "The model runs under estimate four stars and over estimate three stars relative to the data"}
+
+  # Model fit
+  pp_check(mod)
+
+```
+
+---
+
+Figure \@ref(fig:meanVsSd3) shows how the mean and standard deviation of the model runs (in light blue) compare with that of the original data (in dark blue).
+
+```{r meanVsSd3, fig.cap = "Collectively the model runs do a reasonable job estimating the data"}
+
+  pp_check(mod, plotfun = "stat_2d", stat = c("mean", "sd"))
+
+```
+
+---
+
+## Model predictions
+
+In order to better understand how the data and resulting model are able to inform management, a number (4000) of simulations were made based on the model results (strictly, draws were made from the posterior predictive distribution). Each simulation generated a prediction based on a single draw of the model parameters from their predicted distributions. Table \@ref(tab:predict3) shows a summary of these results.
+
+```{r predict3}
+
+  # Use the model to predict results over variables of interest
+  modPred <- datMod %>%
+    dplyr::select(time,State) %>%
+    unique() %>%
+    dplyr::mutate(col = row.names(.)
+                  , Y = 4
+                  , medYear = median(dat$Year)
+                  ) %>%
+    dplyr::left_join(as_tibble(posterior_predict(mod
+                                                 , newdata = .
+                                                 , re.form = NA
+                                                 )
+                               ) %>%
+                       tibble::rownames_to_column(var = "row") %>%
+                       tidyr::gather(col,value,2:ncol(.))
+                     ) %>%
+    (function(x) dplyr::bind_cols(x %>% dplyr::select(-value),value = as.numeric(x$value))) %>%
+    dplyr::mutate(Year = unique(.$medYear) + time
+                  , Stars = value + 1
+                  #, Month = as.factor(Month, levels = levels(datMod$Month))
+                  )
+
+  # summarise the results
+  modRes <- as_tibble(modPred) %>%
+    dplyr::group_by(Year,State) %>%
+    dplyr::summarise(n = n()
+                     , nCheck = nrow(as_tibble(mod))
+                     , modMedian = quantile(Stars,0.5)
+                     , Mean = mean(Stars)
+                     , modci90lo = quantile(Stars, 0.025)
+                     , modci90up = quantile(Stars, 0.975)
+                     , ci = modci90up-modci90lo
+                     , text = paste0(round(modMedian,2)," (",round(modci90lo,2)," to ",round(modci90up,2),")")
+                     ) %>%
+    dplyr::ungroup() %>%
+    dplyr::left_join(datMod %>% dplyr::count(State) %>% dplyr::rename(reviews=n)) %>%
+    dplyr::mutate_if(is.numeric,round,2) %>%
+    dplyr::mutate(label = State
+                  , label = paste0(label,": ",reviews," reviews")
+                  )
+  
+  kable(modRes %>%
+          dplyr::select(State,Year,Mean,`Median and range in 90% credible intervals`=text) %>%
+          dplyr::group_by(State) %>%
+          dplyr::filter(Year == max(Year)) %>%
+          dplyr::ungroup() %>%
+          dplyr::mutate(State = fct_reorder(State,Mean,.desc=TRUE)) %>%
+          dplyr::arrange(State)
+        , caption = paste0("Summary of model results for the last year. ", modRes %>% dplyr::filter(Year == max(Year)) %>% dplyr::top_n(2,Mean) %>% pull(State) %>% vec_to_sentence(), " give the highest stars (based on mean credible estimates)")
+        )
+
+```
+
+---
+
+```{r modResult3, fig.cap = paste0("Model results - mean credible intervals. California and the North Island of New Zealand both appear to have increased the stars they give in reviews through time, however the total number of reviews are low in each case so this result should be treated cautiously. There is very little trend in stars given by origin of reviewers for other origins")}
+
+  ggplot(data=modRes,aes(Year,Mean,fill=State)) +
+    geom_line() +
+    geom_ribbon(aes(ymin = modci90lo, ymax = modci90up), alpha = 0.5) +
+    scale_fill_viridis_d(end=0.9) +
+    facet_wrap(~label
+               , labeller = labeller(label = label_wrap_gen(20))
+               ) +
+    labs(y = "Mean credible value for Stars"
+         , subtitle = "Shading represents 95% credible intervals"
+         ) +
+    theme(axis.text.x = element_text(angle = 90)
+          , legend.position = "none"
+          )
+
+```
+
+# Word analysis
+
+## Overall sentiment
+
+```{r dataTitle}
+
+  fixSentiment <- c("wild","desert","falls","unbelievable","unusual","unexpected","miss","challenging","remarkable","steep","cold","dirt","rocky","crashing","downhill","shady","ruins","cave","wedge")
+
+  datTitle <- dat %>%
+    tidytext::unnest_tokens(word,Title,drop = FALSE) %>%
+    dplyr::anti_join(tidytext::stop_words) %>%
+    dplyr::left_join(tidytext::get_sentiments("bing")) %>%
+    dplyr::mutate(sentiment = ifelse(word %in% fixSentiment,NA,sentiment))
+  
+  datReview <- dat %>%
+    tidytext::unnest_tokens(word,Review,drop = FALSE) %>%
+    dplyr::anti_join(tidytext::stop_words) %>%
+    dplyr::left_join(tidytext::get_sentiments("bing")) %>%
+    dplyr::mutate(sentiment = ifelse(word %in% fixSentiment,NA,sentiment))
+  
+```
+
+Using the tidytext package [@R-tidytext], the text within the character fields `Title` and `Review` were analysed. Figure \@ref(fig:title) shows the ten most common positive, negative and neutral words given in titles. Figure \@ref(fig:review) shows the same for reviews. The following words were reclassified as neutral from negative sentiment as they were overwhelmingly not used in a negative manner: `r vec_to_sentence(fixSentiment,";")`.
+
+```{r title, fig.cap = "Titles had words with positive sentiment much more frequently than words with negative sentiment"}
+
+  datForPlot <- datTitle %>%
+    dplyr::count(word, sentiment, sort = TRUE) %>%
+    dplyr::group_by(sentiment) %>%
+    dplyr::slice(1:10) %>%
+    dplyr::ungroup() %>%
+    dplyr::mutate(word = fct_reorder(word,n)
+                  , sentiment = fct_explicit_na(sentiment, na_level = "neutral")
+                  , sentiment = fct_relevel(sentiment, "positive", "negative")
+                  )
+            
+  ggplot(datForPlot, aes(word,n,fill=sentiment)) +
+    geom_col() +
+    coord_flip() +
+    facet_grid(sentiment~., scales = "free_y", space = "free_y") +
+    scale_fill_viridis_d(end = 0.8)
+
+```
+
+```{r review, fig.cap = "Reviews used words with positive sentiment more frequently than words with negative sentiment"}
+
+  datForPlot <- datReview %>%
+    dplyr::count(word, sentiment, sort = TRUE) %>%
+    dplyr::group_by(sentiment) %>%
+    dplyr::slice(1:10) %>%
+    dplyr::ungroup() %>%
+    dplyr::mutate(word = fct_reorder(word,n)
+                  , sentiment = fct_explicit_na(sentiment, na_level = "neutral")
+                  , sentiment = fct_relevel(sentiment, "positive", "negative")
+                  )
+            
+  ggplot(datForPlot, aes(word,n,fill=sentiment)) +
+    geom_col() +
+    coord_flip() +
+    facet_grid(sentiment~., scales = "free_y", space = "free_y") +
+    scale_fill_viridis_d(end = 0.8)
+
+```
+
+## By park sentiment
+
+```{r parkTitle, fig.cap = "Top ten words in the title text for each sentiment class (positive, negative and neutral) for the parks with the most reviews"}
+
+  datForPlot <- datTitle %>%
+    dplyr::group_by(Park) %>%
+    dplyr::mutate(reviews = n_distinct(id)) %>%
+    dplyr::ungroup() %>%
+    dplyr::count(id, word, Park, reviews, sentiment, sort = TRUE) %>%
+    dplyr::count(word, Park, reviews, sentiment, sort = TRUE) %>%
+    dplyr::filter(reviews > quantile(unique(reviews), probs = 0.8)) %>%
+    dplyr::group_by(Park,sentiment) %>%
+    dplyr::slice(1:10) %>%
+    dplyr::ungroup() %>%
+    dplyr::arrange(Park,n) %>%
+    dplyr::mutate(order = row_number()
+                  , per = 100*n/reviews
+                  , sentiment = fct_explicit_na(sentiment, na_level = "neutral")
+                  , sentiment = fct_relevel(sentiment, "positive", "negative")
+                  )
+            
+  ggplot(datForPlot, aes(order,per,fill=sentiment)) +
+    geom_bar(stat = "identity") +
+    facet_wrap(~Park, scales = "free_y", labeller = labeller(Park = label_wrap_gen(20))) +
+    scale_x_continuous(breaks = datForPlot$order
+                       , labels = datForPlot$word
+                       , expand = c(0,0)
+                       ) +
+    scale_fill_viridis_d(end = 0.8) +
+    coord_flip() +
+    labs(y = "Percentage of reviews"
+         , x = "Word"
+         )
+
+```
+
+```{r parkReview, fig.cap = "Top ten words in the review text for each sentiment class (positive, negative and neutral) for the parks with the most reviews"}
+
+  datForPlot <- datReview %>%
+    dplyr::group_by(Park) %>%
+    dplyr::mutate(reviews = n_distinct(id)) %>%
+    dplyr::ungroup() %>%
+    dplyr::count(id, word, Park, reviews, sentiment, sort = TRUE) %>%
+    dplyr::count(word, Park, reviews, sentiment, sort = TRUE) %>%
+    dplyr::filter(reviews > quantile(unique(reviews), probs = 0.8)) %>%
+    dplyr::group_by(Park,sentiment) %>%
+    dplyr::slice(1:10) %>%
+    dplyr::ungroup() %>%
+    dplyr::arrange(Park,n) %>%
+    dplyr::mutate(order = row_number()
+                  , per = 100*n/reviews
+                  , sentiment = fct_explicit_na(sentiment, na_level = "neutral")
+                  , sentiment = fct_relevel(sentiment, "positive", "negative")
+                  )
+            
+  ggplot(datForPlot, aes(order,per,fill=sentiment)) +
+    geom_bar(stat = "identity") +
+    facet_wrap(~Park, scales = "free_y", labeller = labeller(Park = label_wrap_gen(20))) +
+    scale_x_continuous(breaks = datForPlot$order
+                       , labels = datForPlot$word
+                       , expand = c(0,0)
+                       ) +
+    scale_fill_viridis_d(end = 0.8) +
+    coord_flip() +
+    labs(y = "Percentage of reviews"
+         , x = "Word"
+         )
+  
+```
+
 
 
 # References
