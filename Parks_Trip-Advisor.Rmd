@@ -126,11 +126,46 @@ These three analyses answer most of the questions posed by the community engagem
 
 A further analysis of words used in the titles and reviews was also undertaken.
 
+# Methods
+
+## Data source
+
+Data were taken from Trip Advisor. The site is one of the most popular sources of reviews for hotels, restaurants, experiences, attractions and places such as parks. Trip Advisor features user-generated content with 315 million reviewers (active and inactive) and about 500 million reviews [Wikipedia](https://en.wikipedia.org/wiki/TripAdvisor). 
+
+For the purposes of this analysis, the search function in Trip Advisor was used to identify all parks, reserves and features in parks and reserves that have been reviewed. Some reviews were captured under a park name, such as "Flinders Chase National Park" and some were captured under a feature name, such as "Flinders Chase Visitor Centre". 
+
+In order to manage the scope of this analysis it was decided to collect reviews in the first instance for parks that were reviewed under their official park names. Where there was a park that is of importance to DEW that had reviews under a feature name rather than a park name, these reviews were also collected. For example, reviews were collected for "Waterfall Gully" rather than for "Cleland Conservation Park".
+
+In order to manage the scope of the analysis, and in reflection of DEW’s current organisational structure, it was also decided to limit the review collection to parks and reserves that are not "iconic sites". DEW's organisational structure separates staff working on "iconic sites" that usually charge a per-person fee, such as Cleland Wildlife Park, Naracoorte Caves and Seal Bay; and staff working on sites that usually have no fee, or a vehicle entry fee, such as Flinders Chase National Park, Flinders Ranges National Park or Belair National Park. 
+
+The reviews available were cross referenced against a list of priority parks that DEW has identified through the parks characterisation project to ensure that reviews were captured for all significant non-iconic sites. 
+
+The web scraping software [Octoparse](https://www.octoparse.com/) was used to capture the following elements for analysis: 
+
+* Reviewer name 
+* Reviewer location (country, state and city) 
+* Reviewer age 
+* Reviewer gender 
+* Review date 
+* Review title 
+* Review text 
+* Review star rating 
+
+Note that the web scraping software was able to effectively capture elements such as name, date, title, text and star rating, but that capturing the demographic information about the reviewers was a more difficult process. The demographic information is contained within "hover over" elements of the Trip Advisor web pages. Code was written to scrape these elements for the initial data scrape; manual cutting and pasting was used for scrape updates. It may be for this reason that most academic analysis of Trip Advisor reviews does not extend to considering demographic information and that this report may offer some new information about the utility of this data source. 
+
+Once the data was captured it was cleaned so that it could be imported into SPSS for quantitative analysis and Nvivo for qualitative analysis. The cleaning included:
+
+* Ensuring that each review was attached to a unique reviewer name to allow for import into Nvivo. For example, where a reviewer had written reviews about more than one park, R1, R2, R3 and so on were added to their name: “AussieGirl R1”, “AussieGirl R2” etc. 
+* Standardising place names to ensure that spellings were correct. 
+* Allocating state and/or countries to reviewers who gave only partial location information such as city of residence. 
+* Ensuring that the data set contained no blank cells.
+* Removing reviewers under 18 years old (Age field equal to '13-18').
+
 # Data exploration
 
 ## Summary
 
-Between `r format(min(dat$Date),"%d/%B/%Y")` and `r format(max(dat$Date),"%d/%B/%Y")` there were `r nrow(dat)` reviews on TripAdvisor that could be associated with South Australian parks.
+Between `r format(min(dat$Date),"%d/%B/%Y")` and `r format(max(dat$Date),"%d/%B/%Y")` there were `r nrow(dat)` reviews on TripAdvisor meeting the criteria outline in the [methods].
 
 ## Missing data
 
