@@ -772,21 +772,67 @@ In order to better understand how the data and resulting model are able to infor
 
   fixSentiment <- c("wild","desert","falls","unbelievable","unusual","unexpected","miss","challenging","remarkable","steep","cold","dirt","rocky","crashing","downhill","shady","ruins","cave","wedge")
 
+  removeWords <- c("granite","island","national","park","flinders","ranges","kangaroo","breakaways","chase","victor","harbor","harbour","morialta","adelaide","mt","mount","lofty","coober","pedy","remarkable","rocks","admirals","arch","waterfall","gully","ki","fur","wilpena","pound")
+  
+  changeWords <- tribble(~word, ~changed
+                         , "walks","walk"
+                         , "views","view"
+                         , "disappointing","dissapoint"
+                         , "disappointed","dissapoint"
+                         , "disappointment","dissapoint"
+                         , "colours","colour"
+                         , "color","colour"
+                         , "penguins","penguin"
+                         , "walking", "walk"
+                         , "beauty","beautiful"
+                         , "enjoyed","enjoy"
+                         , "loved","love"
+                         , "sadly","sad"
+                         , "difficulty","difficult"
+                         , "crowded","crowd"
+                         , "limits","limit"
+                         , "falling","fall"
+                         )
+
   datTitle <- dat %>%
     tidytext::unnest_tokens(word,Title,drop = FALSE) %>%
+    dplyr::left_join(changeWords) %>%
+    dplyr::mutate(word = if_else(is.na(changed),word,changed)) %>%
     dplyr::anti_join(tidytext::stop_words) %>%
     dplyr::left_join(tidytext::get_sentiments("bing")) %>%
-    dplyr::mutate(sentiment = ifelse(word %in% fixSentiment,NA,sentiment))
+    dplyr::mutate(sentiment = ifelse(word %in% fixSentiment,NA,sentiment)) %>%
+    dplyr::filter(!word %in% removeWords)
   
   datReview <- dat %>%
     tidytext::unnest_tokens(word,Review,drop = FALSE) %>%
+    dplyr::left_join(changeWords) %>%
+    dplyr::mutate(word = if_else(is.na(changed),word,changed)) %>%
     dplyr::anti_join(tidytext::stop_words) %>%
     dplyr::left_join(tidytext::get_sentiments("bing")) %>%
-    dplyr::mutate(sentiment = ifelse(word %in% fixSentiment,NA,sentiment))
+    dplyr::mutate(sentiment = ifelse(word %in% fixSentiment,NA,sentiment)) %>%
+    dplyr::filter(!word %in% removeWords)
   
 ```
 
-Using the tidytext package [@R-tidytext], the text within the character fields `Title` and `Review` were analysed. Figure \@ref(fig:title) shows the ten most common positive, negative and neutral words given in titles. Figure \@ref(fig:review) shows the same for reviews. The following words were reclassified as neutral from negative sentiment as they were overwhelmingly not used in a negative manner: `r vec_to_sentence(fixSentiment,";")`.
+Using the tidytext package [@R-tidytext], the text within the character fields `Title` and `Review` were analysed. Figure \@ref(fig:title) shows the ten most common positive, negative and neutral words given in titles. Figure \@ref(fig:review) shows the same for reviews.
+
+The following words were reclassified as neutral from negative sentiment as they were overwhelmingly not used in a negative manner: `r vec_to_sentence(sort(fixSentiment),";")`.
+
+The following words were removed from the analysis as they refer to park names or features and therefore occur frequently: `r vec_to_sentence(sort(removeWords),";")`.
+
+Some words were also replaced with a synonym (Table \@ref(tab:changeWords)).
+
+---
+
+```{r changeWords}
+
+  kable(changeWords
+        , caption = "Words that were changed to a synonym before further analysis"
+        )
+
+```
+
+---
 
 ```{r title, fig.cap = "Titles had words with positive sentiment much more frequently than words with negative sentiment"}
 
@@ -830,7 +876,7 @@ Using the tidytext package [@R-tidytext], the text within the character fields `
 
 ## By park sentiment
 
-```{r parkTitle, fig.cap = "Top ten words in the title text for each sentiment class (positive, negative and neutral) for the parks with the most reviews"}
+```{r parkTitle, fig.height = 10, fig.cap = "Top ten words in the title text for each sentiment class (positive, negative and neutral) for the parks with the most reviews"}
 
   datForPlot <- datTitle %>%
     dplyr::group_by(Park) %>%
@@ -896,6 +942,15 @@ Using the tidytext package [@R-tidytext], the text within the character fields `
          , x = "Word"
          )
   
+```
+
+# Activities
+
+```{r datActivity}
+
+  activities <- 
+
+
 ```
 
 # Discussion

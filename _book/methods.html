@@ -5,11 +5,11 @@
 
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>3 Data exploration | Analysis of Trip Advisor data relating to South Australian parks</title>
-  <meta name="description" content="3 Data exploration | Analysis of Trip Advisor data relating to South Australian parks">
+  <title>2 Methods | Analysis of Trip Advisor data relating to South Australian parks</title>
+  <meta name="description" content="2 Methods | Analysis of Trip Advisor data relating to South Australian parks">
   <meta name="generator" content="bookdown  and GitBook 2.6.7">
 
-  <meta property="og:title" content="3 Data exploration | Analysis of Trip Advisor data relating to South Australian parks" />
+  <meta property="og:title" content="2 Methods | Analysis of Trip Advisor data relating to South Australian parks" />
   <meta property="og:type" content="book" />
   
   
@@ -17,7 +17,7 @@
   
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="3 Data exploration | Analysis of Trip Advisor data relating to South Australian parks" />
+  <meta name="twitter:title" content="2 Methods | Analysis of Trip Advisor data relating to South Australian parks" />
   
   
   
@@ -31,8 +31,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   
   
-<link rel="prev" href="methods.html">
-<link rel="next" href="age-and-gender.html">
+<link rel="prev" href="introduction.html">
+<link rel="next" href="data-exploration.html">
 <script src="libs/jquery-2.2.3/jquery.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
@@ -118,31 +118,35 @@
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="data-exploration" class="section level1">
-<h1><span class="header-section-number">3</span> Data exploration</h1>
-<div id="summary" class="section level2">
-<h2><span class="header-section-number">3.1</span> Summary</h2>
-<p>Between 16/May/2004 and 02/November/2019 there were 3849 reviews on TripAdvisor meeting the criteria outline in the <a href="methods.html#methods">methods</a>.</p>
-</div>
-<div id="missing-data" class="section level2">
-<h2><span class="header-section-number">3.2</span> Missing data</h2>
-<p>Some of the key data fields were left blank in many reviews. For example, 1714 (45%) reviews did not provide their gender and 1987 (52%) didn’t provide their age. Figure <a href="data-exploration.html#fig:plotMissing">3.1</a> shows the percentage of reviews that did not provide information against each field.</p>
-<div class="figure"><span id="fig:plotMissing"></span>
-<img src="_main_files/figure-html/plotMissing-1.png" alt="A large proportion of reviews did not answer some questions, particularly Gender and Age" width="672" />
-<p class="caption">
-Figure 3.1: A large proportion of reviews did not answer some questions, particularly Gender and Age
-</p>
-</div>
-</div>
-<div id="count-of-reviews" class="section level2">
-<h2><span class="header-section-number">3.3</span> Count of reviews</h2>
-<p>There are several variables in the data with relatively few levels: Age; City; Country; Gender; id; Month; Park; Stars; State; User; and Year. Figure <a href="data-exploration.html#fig:plotDiscrete">3.2</a> shows the most frequently occuring values in each of those variables.</p>
-<div class="figure"><span id="fig:plotDiscrete"></span>
-<img src="_main_files/figure-html/plotDiscrete-1.png" alt="Most frequent values in each of the variables. Most reviews are from Adelaide based 50-64 year olds called Charmaine who visit Flinders Chase in January" width="672" />
-<p class="caption">
-Figure 3.2: Most frequent values in each of the variables. Most reviews are from Adelaide based 50-64 year olds called Charmaine who visit Flinders Chase in January
-</p>
-</div>
+<div id="methods" class="section level1">
+<h1><span class="header-section-number">2</span> Methods</h1>
+<div id="data-source" class="section level2">
+<h2><span class="header-section-number">2.1</span> Data source</h2>
+<p>Data were taken from Trip Advisor. The site is one of the most popular sources of reviews for hotels, restaurants, experiences, attractions and places such as parks. Trip Advisor features user-generated content with 315 million reviewers (active and inactive) and about 500 million reviews <a href="https://en.wikipedia.org/wiki/TripAdvisor">Wikipedia</a>.</p>
+<p>For the purposes of this analysis, the search function in Trip Advisor was used to identify all parks, reserves and features in parks and reserves that have been reviewed. Some reviews were captured under a park name, such as “Flinders Chase National Park” and some were captured under a feature name, such as “Flinders Chase Visitor Centre”.</p>
+<p>In order to manage the scope of this analysis it was decided to collect reviews in the first instance for parks that were reviewed under their official park names. Where there was a park that is of importance to DEW that had reviews under a feature name rather than a park name, these reviews were also collected. For example, reviews were collected for “Waterfall Gully” rather than for “Cleland Conservation Park”.</p>
+<p>In order to manage the scope of the analysis, and in reflection of DEW’s current organisational structure, it was also decided to limit the review collection to parks and reserves that are not “iconic sites”. DEW’s organisational structure separates staff working on “iconic sites” that usually charge a per-person fee, such as Cleland Wildlife Park, Naracoorte Caves and Seal Bay; and staff working on sites that usually have no fee, or a vehicle entry fee, such as Flinders Chase National Park, Flinders Ranges National Park or Belair National Park.</p>
+<p>The reviews available were cross referenced against a list of priority parks that DEW has identified through the parks characterisation project to ensure that reviews were captured for all significant non-iconic sites.</p>
+<p>The web scraping software <a href="https://www.octoparse.com/">Octoparse</a> was used to capture the following elements for analysis:</p>
+<ul>
+<li>Reviewer name</li>
+<li>Reviewer location (country, state and city)</li>
+<li>Reviewer age</li>
+<li>Reviewer gender</li>
+<li>Review date</li>
+<li>Review title</li>
+<li>Review text</li>
+<li>Review star rating</li>
+</ul>
+<p>Note that the web scraping software was able to effectively capture elements such as name, date, title, text and star rating, but that capturing the demographic information about the reviewers was a more difficult process. The demographic information is contained within “hover over” elements of the Trip Advisor web pages. Code was written to scrape these elements for the initial data scrape; manual cutting and pasting was used for scrape updates. It may be for this reason that most academic analysis of Trip Advisor reviews does not extend to considering demographic information and that this report may offer some new information about the utility of this data source.</p>
+<p>Once the data was captured it was cleaned so that it could be imported into SPSS for quantitative analysis and Nvivo for qualitative analysis. The cleaning included:</p>
+<ul>
+<li>Ensuring that each review was attached to a unique reviewer name to allow for import into Nvivo. For example, where a reviewer had written reviews about more than one park, R1, R2, R3 and so on were added to their name: “AussieGirl R1”, “AussieGirl R2” etc.</li>
+<li>Standardising place names to ensure that spellings were correct.</li>
+<li>Allocating state and/or countries to reviewers who gave only partial location information such as city of residence.</li>
+<li>Ensuring that the data set contained no blank cells.</li>
+<li>Removing reviewers under 18 years old (Age field equal to ‘13-18’).</li>
+</ul>
 </div>
 </div>
             </section>
@@ -150,8 +154,8 @@ Figure 3.2: Most frequent values in each of the variables. Most reviews are from
           </div>
         </div>
       </div>
-<a href="methods.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="age-and-gender.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="introduction.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="data-exploration.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
