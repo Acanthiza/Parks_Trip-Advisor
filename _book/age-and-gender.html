@@ -90,6 +90,7 @@
 <li class="chapter" data-level="7" data-path="word-analysis.html"><a href="word-analysis.html"><i class="fa fa-check"></i><b>7</b> Word analysis</a><ul>
 <li class="chapter" data-level="7.1" data-path="word-analysis.html"><a href="word-analysis.html#overall-sentiment"><i class="fa fa-check"></i><b>7.1</b> Overall sentiment</a></li>
 <li class="chapter" data-level="7.2" data-path="word-analysis.html"><a href="word-analysis.html#by-park-sentiment"><i class="fa fa-check"></i><b>7.2</b> By park sentiment</a></li>
+<li class="chapter" data-level="7.3" data-path="word-analysis.html"><a href="word-analysis.html#activities"><i class="fa fa-check"></i><b>7.3</b> Activities</a></li>
 </ul></li>
 <li class="chapter" data-level="8" data-path="discussion.html"><a href="discussion.html"><i class="fa fa-check"></i><b>8</b> Discussion</a><ul>
 <li class="chapter" data-level="8.1" data-path="discussion.html"><a href="discussion.html#questions"><i class="fa fa-check"></i><b>8.1</b> Questions</a><ul>
@@ -122,7 +123,7 @@
 <h1><span class="header-section-number">4</span> Age and gender</h1>
 <div id="model" class="section level2">
 <h2><span class="header-section-number">4.1</span> Model</h2>
-<p>Trend through time (year) in stars given by age and gender of reviewers (and the interaction of age, gender and time) was analysed using a Bayesian binomial generalised linear mixed model. The analysis was run using the rstanarm package <span class="citation">(Stan Development Team <a href="#ref-RN4481">2016</a>)</span> in R <span class="citation">(R Core Team <a href="#ref-R-base">2019</a>)</span>. Month (of review), Park (visited by reviewer) and State (of origin of reviewer) were treated as random effects in the analysis. Each reviewer was then assumed to provide an independent data point for the analysis. A time field was generated as <span class="math inline">\(time = min(Year) + (max(Year) - min(Year))/2\)</span>. The model specification was:</p>
+<p>Trend through time (year) in stars given by age and gender of reviewers (and the interaction of age, gender and time) was analysed using a Bayesian binomial generalised linear mixed model. The analysis was run using the rstanarm package <span class="citation">(Stan Development Team <a href="#ref-RN4481">2016</a>)</span> in R <span class="citation">(R Core Team <a href="#ref-R-base">2018</a>)</span>. Month (of review), Park (visited by reviewer) and State (of origin of reviewer) were treated as random effects in the analysis. Each reviewer was then assumed to provide an independent data point for the analysis. A time field was generated as <span class="math inline">\(time = min(Year) + (max(Year) - min(Year))/2\)</span>. The model specification was:</p>
 <p><code>cbind(Y, 4 - Y) ~ Gender * Age * time + (1 | Month) + (1 | Park) + ,     (1 | State)</code> where <code>Y</code> is Stars-1.</p>
 </div>
 <div id="model-diagnostics" class="section level2">
@@ -193,14 +194,14 @@ Figure 4.4: Collectively the model runs do a reasonable job estimating the data
 <td align="right">2018</td>
 <td align="left">25-34</td>
 <td align="left">Female</td>
-<td align="right">4.78</td>
+<td align="right">4.80</td>
 <td align="left">5 (4 to 5)</td>
 </tr>
 <tr class="even">
 <td align="right">2018</td>
 <td align="left">25-34</td>
 <td align="left">Male</td>
-<td align="right">4.76</td>
+<td align="right">4.75</td>
 <td align="left">5 (4 to 5)</td>
 </tr>
 <tr class="odd">
@@ -214,21 +215,21 @@ Figure 4.4: Collectively the model runs do a reasonable job estimating the data
 <td align="right">2018</td>
 <td align="left">35-49</td>
 <td align="left">Male</td>
-<td align="right">4.62</td>
+<td align="right">4.63</td>
 <td align="left">5 (3 to 5)</td>
 </tr>
 <tr class="odd">
 <td align="right">2018</td>
 <td align="left">50-64</td>
 <td align="left">Female</td>
-<td align="right">4.66</td>
+<td align="right">4.67</td>
 <td align="left">5 (3 to 5)</td>
 </tr>
 <tr class="even">
 <td align="right">2018</td>
 <td align="left">50-64</td>
 <td align="left">Male</td>
-<td align="right">4.67</td>
+<td align="right">4.68</td>
 <td align="left">5 (3 to 5)</td>
 </tr>
 <tr class="odd">
@@ -263,7 +264,7 @@ Figure 4.5: Model results - mean credible intervals. Most reviewers give 5 stars
 <p>Stan Development Team (2016). rstanarm: Bayesian applied regression modeling via Stan. R package version 2.13.1. Report. Available at: <a href="http://mc-stan.org/">http://mc-stan.org/</a></p>
 </div>
 <div id="ref-R-base">
-<p>R Core Team (2019). ‘R: A language and environment for statistical computing’. (R Foundation for Statistical Computing: Vienna, Austria.) Available at: <a href="https://www.R-project.org/">https://www.R-project.org/</a></p>
+<p>R Core Team (2018). ‘R: A language and environment for statistical computing’. (R Foundation for Statistical Computing: Vienna, Austria.) Available at: <a href="https://www.R-project.org/">https://www.R-project.org/</a></p>
 </div>
 </div>
             </section>
