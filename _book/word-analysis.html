@@ -66,6 +66,7 @@
 <li class="chapter" data-level="1" data-path="introduction.html"><a href="introduction.html"><i class="fa fa-check"></i><b>1</b> Introduction</a></li>
 <li class="chapter" data-level="2" data-path="methods.html"><a href="methods.html"><i class="fa fa-check"></i><b>2</b> Methods</a><ul>
 <li class="chapter" data-level="2.1" data-path="methods.html"><a href="methods.html#data-source"><i class="fa fa-check"></i><b>2.1</b> Data source</a></li>
+<li class="chapter" data-level="2.2" data-path="methods.html"><a href="methods.html#workflow"><i class="fa fa-check"></i><b>2.2</b> Workflow</a></li>
 </ul></li>
 <li class="chapter" data-level="3" data-path="data-exploration.html"><a href="data-exploration.html"><i class="fa fa-check"></i><b>3</b> Data exploration</a><ul>
 <li class="chapter" data-level="3.1" data-path="data-exploration.html"><a href="data-exploration.html#summary"><i class="fa fa-check"></i><b>3.1</b> Summary</a></li>
@@ -101,7 +102,10 @@
 </ul></li>
 <li class="chapter" data-level="8.2" data-path="discussion.html"><a href="discussion.html#words-used-in-reviews"><i class="fa fa-check"></i><b>8.2</b> Words used in reviews</a></li>
 </ul></li>
-<li class="chapter" data-level="9" data-path="appendix.html"><a href="appendix.html"><i class="fa fa-check"></i><b>9</b> Appendix</a></li>
+<li class="chapter" data-level="9" data-path="appendix.html"><a href="appendix.html"><i class="fa fa-check"></i><b>9</b> Appendix</a><ul>
+<li class="chapter" data-level="9.1" data-path="appendix.html"><a href="appendix.html#changed-words"><i class="fa fa-check"></i><b>9.1</b> Changed words</a></li>
+<li class="chapter" data-level="9.2" data-path="appendix.html"><a href="appendix.html#r-packages-used"><i class="fa fa-check"></i><b>9.2</b> R packages used</a></li>
+</ul></li>
 <li class="chapter" data-level="10" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i><b>10</b> References</a></li>
 </ul>
 
@@ -124,22 +128,22 @@
 <h1><span class="header-section-number">7</span> Word analysis</h1>
 <div id="overall-sentiment" class="section level2">
 <h2><span class="header-section-number">7.1</span> Overall sentiment</h2>
-<p>Using the tidytext package <span class="citation">(Robinson and Silge <a href="#ref-R-tidytext">2018</a>)</span>, the text within the character fields <code>Title</code> and <code>Review</code> were analysed. Some words were replaced with a synonym (Appendix Table <a href="appendix.html#tab:changeWords">9.1</a>). This includes ‘lumping’ words such as, say, <code>echidna</code> into <code>wildlife</code>. The following words were reclassified as neutral from negative sentiment as they were overwhelmingly not used in a negative manner: cave; challenging; cold; crashing; desert; dirt; downhill; falls; miss; remarkable; rocky; ruins; shady; steep; unbelievable; unexpected; unusual; wedge; and wild. The following words were removed from the analysis as they refer to park names and therefore occur frequently: adelaide; arch; chase; coffin; coober; flinders; fur; granite; gully; harbor; harbour; island; kangaroo; ki; lofty; morialta; mount; mt; national; park; pedy; pound; ranges; rocks; victor; and wilpena.</p>
+<p>Using the tidytext package <span class="citation">(Robinson and Silge <a href="#ref-R-tidytext">2018</a>)</span>, the text within the character fields <code>Title</code> and <code>Review</code> were analysed. Some words were replaced with a synonym (Appendix Table <a href="appendix.html#tab:changeWords">9.1</a>). This includes ‘lumping’ words such as, say, <code>echidna</code> into <code>wildlife</code>. The following words were reclassified as neutral from negative sentiment as they were overwhelmingly not used in a negative manner: cave; challenging; cold; crashing; desert; dirt; downhill; falls; miss; remarkable; rocky; ruins; shady; steep; unbelievable; unexpected; unusual; wedge; and wild. The following words were removed from the analysis as they refer to park or place names, and occur frequently, but do not add much to the analysis: adelaide; arch; chase; coffin; coober; flinders; granite; gully; harbor; harbour; island; kangaroo; ki; lofty; morialta; mount; mt; national; park; pedy; pound; ranges; rocks; victor; and wilpena.</p>
 <p>Figure <a href="word-analysis.html#fig:title">7.1</a> shows the ten most common positive, negative and neutral words given in the <code>Title</code> field. The presence of <code>worth</code> in this list suggested that reviewers thought that the positive sentiments they expressed came at a cost (perhaps time and/or distance). A random sample of contexts in which <code>worth</code> occured:</p>
 <ul>
-<li>Worth the Drive</li>
-<li>“Well worth the visit”</li>
-<li>“Worth the drive”</li>
-<li>Worth every kilometre of bumpy road</li>
-<li>“Well worth the visit”</li>
+<li>“Well Worth a Visit”</li>
+<li>Worth the trip to Flinders!</li>
+<li>“Well worth seeing”</li>
+<li>“Worth the trip”</li>
+<li>Worth a Visit</li>
 </ul>
 <p>Figure <a href="word-analysis.html#fig:review">7.2</a> shows the ten most common positive, negative and neutral words given in the <code>Review</code> field. Again, the most frequently occuring words are positive or neutral. Also, <code>worth</code> occurs frequently again, but so does <code>easy</code>. A random sample of contexts in which <code>easy</code> occured:</p>
 <ul>
-<li>We travelled in June and it was chilly. The Park rangers at the station friendly they have an impressive headquarters The remarkable rocks are just that and Admiral’s Arch and the seal colony was very interesting reasonable easy to access plenty of seals.</li>
-<li>Remarkable rocks and Admirals Arch are absolutely enthralling. The path to Admirals Arch is easy to walk and well maintained. Plenty of seals.</li>
-<li>While this park is at the far end of the island it also has some of the best attractions on the island. It is mostly bush with unsealed roads through it and you can expect to see some wildlife such as kangaroos. The roads are good as long as it isn’t wet and are well-maintained. The two attractions at the end of the island, the Remarkable Rocks and the Admirals Arch are both natural attractions that are easy to get to and we found the both to be very interesting. There is an entrance fee which you pay at the park headquarters near the entrance to the park. There is a lot of valuable information available at the park headquarters also.</li>
-<li>The waterfall is a nice getaway from the city life. Came with 2 young kids and the waterfall is easy to access from Adelaide City. Car park is at close proximity as well. There’s a short path to reach the top of the waterfall from the base which is easy to walk, but too rocky for strollers.</li>
-<li>This place is a little of the beaten track but well worth a visit you drive along unsealed roads from streaky bay following the seal signs it is well sign posted the roads are well graded so no worries there. When you park your car you have a 250 short walk to the lookout I can not walk far but it was easy for me. ,When you get to the wooden lookout you can see all the seals below basking in the sun or frolicking in the water or rolling around in the sand and when we were there lots of babies were with there mums. It’s a good idea to have some binoculars with you so get a real good look</li>
+<li>The roads here a very well maintained, and cleared regularly. The park café was friendly and well-stocked. A fabulous coffee set us off on our journey. The sights of Admiral’s Arch and Remarkable Rocks are simply awesome. Set up well for easy access.</li>
+<li>Waterfall Gully is a beautiful place and also very popular. It was really difficult to find a parking space on a Sunday morning. It was an easy walk to the waterfall. It is a beautiful sight. Good place to start a hike too. Surprisingly fast to get to by car, no good connections by public transportation though.</li>
+<li>These challenging and well maintained mountain bike trails were a great discovery! As a novice I found these trails tough going but well worth the effort. They start at an intermediate level. For easy trails you need to head down to the nearby Melrose Showgrounds. The local bike shop is simply brilliant and provides quality bike hire, gear, maps and even coffee!</li>
+<li>good short and longer walks ranging from easy to moderate/hard. great views and waterfalls in winter</li>
+<li>Let me start by saying the flinders rangers are beautiful, I have visited the area a few times and love the views. This was my 1st time visiting Wilpena pound via the visitor centre at the resort. We were keen to do a walk and check the views of the pound. I asked at the visitor centre how long are the walks, I ask as I have a child still recovering his strength from chemotherapy treatment (I did not disclose that). I was told it is an easy 2km walk to the pound. That was achievable, however the more I read the information signs along the way the walk was much longer, about a 6.6km return. It is 2km walk to the entrance of the pound, then onwards. We made it to the Homestead look out, and in the words of my son, it was not worth the walk. I take responsibility for not doing my homework on the distances, however I would have thought that information would have been made clear when I asked. If you love your bush walks and hikes, there are heaps here to do.</li>
 </ul>
 <hr />
 <div class="figure"><span id="fig:title"></span>
@@ -160,17 +164,17 @@ Figure 7.2: Reviews used words with positive sentiment more frequently than word
 <h2><span class="header-section-number">7.2</span> By park sentiment</h2>
 <p>Figure <a href="word-analysis.html#fig:parkTitle">7.3</a> shows, by park, the five most common positive, negative and neutral words given in the <code>Title</code> field. The lowest frequency at which <code>nature</code> occurs is third. A random sample of contexts in which <code>nature</code> occurs:</p>
 <ul>
-<li>Enjoyable nature walk</li>
-<li>“So many things to see &amp; walks to do - Aussie nature at its best…”</li>
-<li>“Absolute nature”</li>
-<li>“A place to feel and see the magic of nature &amp; experience wonderment”</li>
-<li>“A place to feel and see the magic of nature &amp; experience wonderment”</li>
+<li>“Wonderful glimpse into rugged South Australian nature”</li>
+<li>“Mother nature at her best”</li>
+<li>great leisurely walk with natural and manmade beauty–and a sunset miracle of nature-Shearwaters returning</li>
+<li>“Good hikes and nature”</li>
+<li>A piece of nature near the city that is worth the hike</li>
 </ul>
 <p>Figure <a href="word-analysis.html#fig:parkReview">7.4</a> shows, by park, the five most common positive, negative and neutral words given in the <code>Review</code> field. Each park had <code>hard</code> in the negative words, followed by <code>difficult</code> which occured in most parks. Some examples of the context in which <code>hard</code> occurs:</p>
 <ul>
-<li>This walk is so beautiful and you have a couple of tracks to choose from depending on whether you want a faster or more intense walk/run. I love walking the track straight to the lighthouse, stopping for a drink and some beautiful views and fresh air before heading back down to the waterfall. I find the straight walk there and back hard enough! (Though some reviewers would probably laugh at me lol) the incline is steady but consistent the whole way up! I know some people that do up and down running in under an hour. So this walk is perfect for all people looking for whatever type of walk or workout your prefer. If your elderly or have difficulty breathing/leg injuries etc. I’d give this one a miss. Once you get up there’s only 1 day down and I’d. Ever recommend my nan or grandad try this walk for he scenic value. If your a but older and looking to enjoy waterfall gully, go to the bottom for your photos then drive up to the lighthouse and meet your friends or family up there for a pelt view or some lunch in the restaurant :) If you walk during wetter times of the year this trek is also heaps of fun to get a bit dirtier and see the other few waterfalls looking spectacular. Don’t forget to bring your camera and take some photos at the bottom and along the way :) Also, if your looking for other activities around the area, try cuddly creek, Gorge wildlife park, the big rocking horse, chocolate factory as well :-)</li>
-<li>Lovely day out for the family exploring the stunning landscape and waterfall. It would be hard for someone of low fitness to make it to the top but a nice day out regardless.</li>
-<li>If your feeling fit please put your walking shoe’s on take a bottle of water and go for a walk Autumn is the best time because it’s beautiful and green and if any rain has fallen the waterfall is magnificent it’s a hard walk so be prepared for your heart to go up.Very enjoyable</li>
+<li>long drive from the centre of Kingscote but well worth the effort with many other attractions close by such as lighthouse, National park and beaches. The parking is good and the short walk not hard. an amazing place that is really popular but people sort of get absorbed into the surroundings.</li>
+<li>Great place to go for a walk, have a coffee and enjoy fresh air, no fee to pay to get in but it is a little bit hard to get parking so be patient.</li>
+<li>We went there on Friday after lunch , car park was ok but on the week end I can’t imagine how hard it would be to find a place. Anyway , you just can walk ( hard walk but so nice ) to mount lofty , around 4km but you have different way to go there , and even if you don’t want walk so far just walk 500m up to see the waterfall and you can also go on a top ( 5mins walk). Just get a cold water bottle and good shoes :)</li>
 </ul>
 <div class="figure"><span id="fig:parkTitle"></span>
 <img src="_main_files/figure-html/parkTitle-1.png" alt="Top ten words in the title text for each sentiment class (positive, negative and neutral) for the parks with the most reviews" width="672" />
@@ -197,9 +201,9 @@ Figure 7.4: Top ten words in the review text for each sentiment class (positive,
 </ul>
 <hr />
 <div class="figure"><span id="fig:reviewActivity"></span>
-<img src="_main_files/figure-html/reviewActivity-1.png" alt="nature, walk and wildlife are by far the most populat activities mentioned in reviews" width="672" />
+<img src="_main_files/figure-html/reviewActivity-1.png" alt="nature, walk and wildlife are by far the most popular activities mentioned in reviews" width="672" />
 <p class="caption">
-Figure 7.5: nature, walk and wildlife are by far the most populat activities mentioned in reviews
+Figure 7.5: nature, walk and wildlife are by far the most popular activities mentioned in reviews
 </p>
 </div>
 <hr />

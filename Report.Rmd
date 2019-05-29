@@ -56,6 +56,9 @@ editor_options:
   # reset ggplot default theme (rstanarm changes it for some reason)
   theme_set(theme_grey())
   
+  # Project
+  project <- basename(here::here())
+  
 ```
   
 ```{r data}
@@ -135,9 +138,7 @@ Data were taken from Trip Advisor. The site is one of the most popular sources o
 
 For the purposes of this analysis, the search function in Trip Advisor was used to identify all parks, reserves and features in parks and reserves that have been reviewed. Some reviews were captured under a park name, such as "Flinders Chase National Park" and some were captured under a feature name, such as "Flinders Chase Visitor Centre". 
 
-In order to manage the scope of this analysis it was decided to collect reviews in the first instance for parks that were reviewed under their official park names. Where there was a park that is of importance to DEW that had reviews under a feature name rather than a park name, these reviews were also collected. For example, reviews were collected for "Waterfall Gully" rather than for "Cleland Conservation Park".
-
-In order to manage the scope of the analysis, and in reflection of DEW’s current organisational structure, it was also decided to limit the review collection to parks and reserves that are not "iconic sites". DEW's organisational structure separates staff working on "iconic sites" that usually charge a per-person fee, such as Cleland Wildlife Park, Naracoorte Caves and Seal Bay; and staff working on sites that usually have no fee, or a vehicle entry fee, such as Flinders Chase National Park, Flinders Ranges National Park or Belair National Park. 
+In order to manage the scope of this analysis it was decided to collect reviews in the first instance for parks that were reviewed under their official park names. Where there was a park that is of importance to DEW that had reviews under a feature name rather than a park name, these reviews were also collected. For example, reviews were collected for "Waterfall Gully" rather than for "Cleland Conservation Park". A further current limitation, imposed to manage scope, was exclusion of "iconic sites".
 
 The reviews available were cross referenced against a list of priority parks that DEW has identified through the parks characterisation project to ensure that reviews were captured for all significant non-iconic sites. 
 
@@ -156,11 +157,19 @@ Note that the web scraping software was able to effectively capture elements suc
 
 Once the data was captured it was cleaned so that it could be imported into SPSS for quantitative analysis and Nvivo for qualitative analysis. The cleaning included:
 
-* Ensuring that each review was attached to a unique reviewer name to allow for import into Nvivo. For example, where a reviewer had written reviews about more than one park, R1, R2, R3 and so on were added to their name: “AussieGirl R1”, “AussieGirl R2” etc. 
-* Standardising place names to ensure that spellings were correct. 
-* Allocating state and/or countries to reviewers who gave only partial location information such as city of residence. 
-* Ensuring that the data set contained no blank cells.
-* Removing reviewers under 18 years old (Age field equal to '13-18').
+* Ensuring that each review was attached to a unique reviewer name 
+* Standardising place names to ensure that spellings were correct 
+* Allocating state and/or countries to reviewers who gave only partial location information such as city of residence
+* Ensuring that the data set contained no blank cells
+* Removing reviewers under 18 years old (Age field equal to '13-18')
+
+## Workflow
+
+This data analysis and report writing was done in a single scripted workflow (script file: [`r list.files(here::here(),pattern="Report.Rmd",recursive=TRUE)`](`r paste0("https://github.com/Acanthiza/",project,"/",list.files(here::here(),pattern="t.Rmd",recursive=TRUE))`) using the programs 'R' and 'R-studio'.
+
+[R](https://www.r-project.org/) [@R-base] is an open-source platform which makes available a library of packages that can be used and modified as necessary. [R-studio](https://www.rstudio.com/) provides a range of user-friendly features to facilitate interaction with R. The packages used are listed in the appendix: [R packages used] Table \@ref(tab:packages).
+
+All data, code and outputs are stored in a version control system at [`r project`](`r paste0("https://github.com/Acanthiza/",project)`).
 
 # Data exploration
 
@@ -210,7 +219,7 @@ Some of the key data fields were left blank in many reviews. For example, `r sum
 
 There are several variables in the data with relatively few levels: `r vec_to_sentence(unique(pull(datCount,variable)),";")`. Figure \@ref(fig:plotDiscrete) shows the most frequently occuring values in each of those variables.
 
-```{r plotDiscrete, fig.height = 10, fig.cap = "Most frequent values in each of the variables. Most reviews are from Adelaide based 50-64 year olds called Charmaine who visit Flinders Chase in January"}
+```{r plotDiscrete, fig.height = 10, fig.cap = "Most frequent values in each of the variables. Most reviews are from Adelaide based 50-64 year olds called Charmaine who visited Flinders Chase in January 2016 and gave it 5 stars"}
   
   ggplot(datCount %>%
            dplyr::filter(n > 4)%>%
@@ -773,7 +782,7 @@ In order to better understand how the data and resulting model are able to infor
 
   fixSentiment <- c("wild","desert","falls","unbelievable","unusual","unexpected","miss","challenging","remarkable","steep","cold","dirt","rocky","crashing","downhill","shady","ruins","cave","wedge")
 
-  removeWords <- c("granite","island","national","park","flinders","ranges","kangaroo","chase","victor","harbor","harbour","morialta","adelaide","mt","mount","lofty","coober","pedy","rocks","arch","gully","ki","fur","wilpena","pound","coffin")
+  removeWords <- c("granite","island","national","park","flinders","ranges","kangaroo","chase","victor","harbor","harbour","morialta","adelaide","mt","mount","lofty","coober","pedy","rocks","arch","gully","ki","wilpena","pound","coffin")
   
   changeWords <- tribble(~word, ~changed
                          , "disappointing","dissapoint"
@@ -811,6 +820,7 @@ In order to better understand how the data and resulting model are able to infor
                          , "drove","drive"
                          , "penguin","wildlife"
                          , "penguins","wildlife"
+                         , "fur","wildlife"
                          , "seal","wildlife"
                          , "seals","wildlife"
                          , "koala","wildlife"
@@ -864,7 +874,7 @@ In order to better understand how the data and resulting model are able to infor
   
 ```
 
-Using the tidytext package [@R-tidytext], the text within the character fields `Title` and `Review` were analysed. Some words were replaced with a synonym (Appendix Table \@ref(tab:changeWords)). This includes 'lumping' words such as, say, `echidna` into `wildlife`. The following words were reclassified as neutral from negative sentiment as they were overwhelmingly not used in a negative manner: `r vec_to_sentence(sort(fixSentiment),";")`. The following words were removed from the analysis as they refer to park names and therefore occur frequently: `r vec_to_sentence(sort(removeWords),";")`.
+Using the tidytext package [@R-tidytext], the text within the character fields `Title` and `Review` were analysed. Some words were replaced with a synonym (Appendix Table \@ref(tab:changeWords)). This includes 'lumping' words such as, say, `echidna` into `wildlife`. The following words were reclassified as neutral from negative sentiment as they were overwhelmingly not used in a negative manner: `r vec_to_sentence(sort(fixSentiment),";")`. The following words were removed from the analysis as they refer to park or place names, and occur frequently, but do not add much to the analysis: `r vec_to_sentence(sort(removeWords),";")`.
 
 Figure \@ref(fig:title) shows the ten most common positive, negative and neutral words given in the `Title` field. The presence of `worth` in this list suggested that reviewers thought that the positive sentiments they expressed came at a cost (perhaps time and/or distance). A random sample of contexts in which `worth` occured:
 
@@ -934,7 +944,7 @@ Figure \@ref(fig:parkReview) shows, by park, the five most common positive, nega
 
 * `r paste0(datReview %>% dplyr::filter(word == "hard") %>% dplyr::sample_n(3) %>% dplyr::pull(Review),collapse="\n* ")`
 
-```{r parkTitle, fig.height = 8, fig.cap = "Top ten words in the title text for each sentiment class (positive, negative and neutral) for the parks with the most reviews"}
+```{r parkTitle, fig.height = 10, fig.cap = "Top ten words in the title text for each sentiment class (positive, negative and neutral) for the parks with the most reviews"}
 
   datForPlot <- datTitle %>%
     dplyr::group_by(Park) %>%
@@ -956,20 +966,21 @@ Figure \@ref(fig:parkReview) shows, by park, the five most common positive, nega
             
   ggplot(datForPlot, aes(order,per,fill=sentiment)) +
     geom_bar(stat = "identity") +
-    facet_wrap(~label, scales = "free_y", labeller = labeller(label = label_wrap_gen(20))) +
+    facet_wrap(~label, scales = "free_y", labeller = labeller(label = label_wrap_gen(15))) +
     scale_x_continuous(breaks = datForPlot$order
                        , labels = datForPlot$word
                        , expand = c(0,0)
                        ) +
     scale_fill_viridis_d(end = 0.8) +
     coord_flip() +
-    labs(y = "Percentage of titles using word (or synonym)")
+    labs(y = "Percentage of titles using word (or synonym)") +
+    theme(legend.position = "top")
 
 ```
 
 ---
 
-```{r parkReview, fig.height = 8, fig.cap = "Top ten words in the review text for each sentiment class (positive, negative and neutral) for the parks with the most reviews"}
+```{r parkReview, fig.height = 10, fig.cap = "Top ten words in the review text for each sentiment class (positive, negative and neutral) for the parks with the most reviews"}
 
   datForPlot <- datReview %>%
     dplyr::group_by(Park) %>%
@@ -991,14 +1002,15 @@ Figure \@ref(fig:parkReview) shows, by park, the five most common positive, nega
             
   ggplot(datForPlot, aes(order,per,fill=sentiment)) +
     geom_bar(stat = "identity") +
-    facet_wrap(~label, scales = "free_y", labeller = labeller(label = label_wrap_gen(20))) +
+    facet_wrap(~label, scales = "free_y", labeller = labeller(label = label_wrap_gen(15))) +
     scale_x_continuous(breaks = datForPlot$order
                        , labels = datForPlot$word
                        , expand = c(0,0)
                        ) +
     scale_fill_viridis_d(end = 0.8) +
     coord_flip() +
-    labs(y = "Percentage of reviews using word (or synonym)")
+    labs(y = "Percentage of reviews using word (or synonym)") +
+    theme(legend.position = "top")
   
 ```
 
@@ -1014,7 +1026,7 @@ Figure \@ref(fig:parkActivity) shows the frequency with which activities are men
 
 ---
 
-```{r reviewActivity, fig.cap = paste0(datForPlot %>% dplyr::top_n(3) %>% dplyr::pull(word) %>% vec_to_sentence()," are by far the most populat activities mentioned in reviews")}
+```{r reviewActivity, fig.cap = paste0(datForPlot %>% dplyr::top_n(3) %>% dplyr::pull(word) %>% vec_to_sentence()," are by far the most popular activities mentioned in reviews")}
 
   datForPlot <- datReview %>%
     dplyr::filter(word %in% activities) %>%
@@ -1033,7 +1045,7 @@ Figure \@ref(fig:parkActivity) shows the frequency with which activities are men
 
 ---
 
-```{r parkActivity, fig.cap = "The reviews provided for a park often spill over into surrounding activites. This explains, say, camping being an activity mentioned for Granite Island"}
+```{r parkActivity, fig.height = 8, fig.cap = "The reviews provided for a park often spill over into surrounding activites. This explains, say, camping being an activity mentioned for Granite Island"}
 
   datForPlot <- datReview %>%
     dplyr::group_by(Park) %>%
@@ -1097,11 +1109,29 @@ Reviewers most frequently mention `r datReview %>% dplyr::filter(is.na(sentiment
 
 # Appendix
 
+## Changed words
+
 ```{r changeWords}
 
   kable(changeWords
         , caption = "Words that were changed to a synonym before further analysis"
         )
+
+```
+
+## R packages used
+
+```{r packages, fig.cap = "R [@R-base] packages used to produce this report"}
+
+  kable(tibble(Package = read_lines("rPackages.bib")) %>%
+    dplyr::filter(grepl("@",Package)
+                  , !grepl("CiteR",Package)
+                  ) %>%
+    dplyr::mutate(Package = gsub("@Manual\\{|,|R-","",Package)) %>%
+    dplyr::arrange() %>%
+    dplyr::mutate(Citation = paste0("@R-",Package))
+   , caption = "R [@R-base] packages used in the production of this report" 
+   )
 
 ```
 

@@ -66,6 +66,7 @@
 <li class="chapter" data-level="1" data-path="introduction.html"><a href="introduction.html"><i class="fa fa-check"></i><b>1</b> Introduction</a></li>
 <li class="chapter" data-level="2" data-path="methods.html"><a href="methods.html"><i class="fa fa-check"></i><b>2</b> Methods</a><ul>
 <li class="chapter" data-level="2.1" data-path="methods.html"><a href="methods.html#data-source"><i class="fa fa-check"></i><b>2.1</b> Data source</a></li>
+<li class="chapter" data-level="2.2" data-path="methods.html"><a href="methods.html#workflow"><i class="fa fa-check"></i><b>2.2</b> Workflow</a></li>
 </ul></li>
 <li class="chapter" data-level="3" data-path="data-exploration.html"><a href="data-exploration.html"><i class="fa fa-check"></i><b>3</b> Data exploration</a><ul>
 <li class="chapter" data-level="3.1" data-path="data-exploration.html"><a href="data-exploration.html#summary"><i class="fa fa-check"></i><b>3.1</b> Summary</a></li>
@@ -101,7 +102,10 @@
 </ul></li>
 <li class="chapter" data-level="8.2" data-path="discussion.html"><a href="discussion.html#words-used-in-reviews"><i class="fa fa-check"></i><b>8.2</b> Words used in reviews</a></li>
 </ul></li>
-<li class="chapter" data-level="9" data-path="appendix.html"><a href="appendix.html"><i class="fa fa-check"></i><b>9</b> Appendix</a></li>
+<li class="chapter" data-level="9" data-path="appendix.html"><a href="appendix.html"><i class="fa fa-check"></i><b>9</b> Appendix</a><ul>
+<li class="chapter" data-level="9.1" data-path="appendix.html"><a href="appendix.html#changed-words"><i class="fa fa-check"></i><b>9.1</b> Changed words</a></li>
+<li class="chapter" data-level="9.2" data-path="appendix.html"><a href="appendix.html#r-packages-used"><i class="fa fa-check"></i><b>9.2</b> R packages used</a></li>
+</ul></li>
 <li class="chapter" data-level="10" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i><b>10</b> References</a></li>
 </ul>
 
@@ -126,8 +130,7 @@
 <h2><span class="header-section-number">2.1</span> Data source</h2>
 <p>Data were taken from Trip Advisor. The site is one of the most popular sources of reviews for hotels, restaurants, experiences, attractions and places such as parks. Trip Advisor features user-generated content with 315 million reviewers (active and inactive) and about 500 million reviews <a href="https://en.wikipedia.org/wiki/TripAdvisor">Wikipedia</a>.</p>
 <p>For the purposes of this analysis, the search function in Trip Advisor was used to identify all parks, reserves and features in parks and reserves that have been reviewed. Some reviews were captured under a park name, such as “Flinders Chase National Park” and some were captured under a feature name, such as “Flinders Chase Visitor Centre”.</p>
-<p>In order to manage the scope of this analysis it was decided to collect reviews in the first instance for parks that were reviewed under their official park names. Where there was a park that is of importance to DEW that had reviews under a feature name rather than a park name, these reviews were also collected. For example, reviews were collected for “Waterfall Gully” rather than for “Cleland Conservation Park”.</p>
-<p>In order to manage the scope of the analysis, and in reflection of DEW’s current organisational structure, it was also decided to limit the review collection to parks and reserves that are not “iconic sites”. DEW’s organisational structure separates staff working on “iconic sites” that usually charge a per-person fee, such as Cleland Wildlife Park, Naracoorte Caves and Seal Bay; and staff working on sites that usually have no fee, or a vehicle entry fee, such as Flinders Chase National Park, Flinders Ranges National Park or Belair National Park.</p>
+<p>In order to manage the scope of this analysis it was decided to collect reviews in the first instance for parks that were reviewed under their official park names. Where there was a park that is of importance to DEW that had reviews under a feature name rather than a park name, these reviews were also collected. For example, reviews were collected for “Waterfall Gully” rather than for “Cleland Conservation Park”. A further current limitation, imposed to manage scope, was exclusion of “iconic sites”.</p>
 <p>The reviews available were cross referenced against a list of priority parks that DEW has identified through the parks characterisation project to ensure that reviews were captured for all significant non-iconic sites.</p>
 <p>The web scraping software <a href="https://www.octoparse.com/">Octoparse</a> was used to capture the following elements for analysis:</p>
 <ul>
@@ -143,12 +146,24 @@
 <p>Note that the web scraping software was able to effectively capture elements such as name, date, title, text and star rating, but that capturing the demographic information about the reviewers was a more difficult process. The demographic information is contained within “hover over” elements of the Trip Advisor web pages. Code was written to scrape these elements for the initial data scrape; manual cutting and pasting was used for scrape updates. It may be for this reason that most academic analysis of Trip Advisor reviews does not extend to considering demographic information and that this report may offer some new information about the utility of this data source.</p>
 <p>Once the data was captured it was cleaned so that it could be imported into SPSS for quantitative analysis and Nvivo for qualitative analysis. The cleaning included:</p>
 <ul>
-<li>Ensuring that each review was attached to a unique reviewer name to allow for import into Nvivo. For example, where a reviewer had written reviews about more than one park, R1, R2, R3 and so on were added to their name: “AussieGirl R1”, “AussieGirl R2” etc.</li>
-<li>Standardising place names to ensure that spellings were correct.</li>
-<li>Allocating state and/or countries to reviewers who gave only partial location information such as city of residence.</li>
-<li>Ensuring that the data set contained no blank cells.</li>
-<li>Removing reviewers under 18 years old (Age field equal to ‘13-18’).</li>
+<li>Ensuring that each review was attached to a unique reviewer name</li>
+<li>Standardising place names to ensure that spellings were correct</li>
+<li>Allocating state and/or countries to reviewers who gave only partial location information such as city of residence</li>
+<li>Ensuring that the data set contained no blank cells</li>
+<li>Removing reviewers under 18 years old (Age field equal to ‘13-18’)</li>
 </ul>
+</div>
+<div id="workflow" class="section level2">
+<h2><span class="header-section-number">2.2</span> Workflow</h2>
+<p>This data analysis and report writing was done in a single scripted workflow (script file: <a href="https://github.com/Acanthiza/Parks_Trip-Advisor/Report.Rmd">Report.Rmd</a> using the programs ‘R’ and ‘R-studio’.</p>
+<p><a href="https://www.r-project.org/">R</a> <span class="citation">(R Core Team <a href="#ref-R-base">2019</a>)</span> is an open-source platform which makes available a library of packages that can be used and modified as necessary. <a href="https://www.rstudio.com/">R-studio</a> provides a range of user-friendly features to facilitate interaction with R. The packages used are listed in the appendix: <a href="appendix.html#r-packages-used">R packages used</a> Table <a href="appendix.html#tab:packages">9.2</a>.</p>
+<p>All data, code and outputs are stored in a version control system at <a href="https://github.com/Acanthiza/Parks_Trip-Advisor">Parks_Trip-Advisor</a>.</p>
+</div>
+</div>
+<h3> References</h3>
+<div id="refs" class="references">
+<div id="ref-R-base">
+<p>R Core Team (2019). ‘R: A language and environment for statistical computing’. (R Foundation for Statistical Computing: Vienna, Austria.) Available at: <a href="https://www.R-project.org/">https://www.R-project.org/</a></p>
 </div>
 </div>
             </section>
