@@ -165,7 +165,7 @@ Once the data was captured it was cleaned so that it could be imported into SPSS
 
 ## Workflow
 
-This data analysis and report writing was done in a single scripted workflow (script file: [`r list.files(here::here(),pattern="Report.Rmd",recursive=TRUE)`](`r paste0("https://github.com/Acanthiza/",project,"/",list.files(here::here(),pattern="t.Rmd",recursive=TRUE))`) using the programs 'R' and 'R-studio'.
+This data analysis and report writing was done in a single scripted workflow (script file: [`r list.files(here::here(),pattern="Report.Rmd",recursive=TRUE)`](`r paste0("https://github.com/Acanthiza/",project,"/blob/master/",list.files(here::here(),pattern="t.Rmd",recursive=TRUE))`) using the programs 'R' and 'R-studio'.
 
 [R](https://www.r-project.org/) [@R-base] is an open-source platform which makes available a library of packages that can be used and modified as necessary. [R-studio](https://www.rstudio.com/) provides a range of user-friendly features to facilitate interaction with R. The packages used are listed in the appendix: [R packages used] Table \@ref(tab:packages).
 
