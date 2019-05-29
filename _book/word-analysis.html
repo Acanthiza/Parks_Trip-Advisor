@@ -101,7 +101,8 @@
 </ul></li>
 <li class="chapter" data-level="8.2" data-path="discussion.html"><a href="discussion.html#words-used-in-reviews"><i class="fa fa-check"></i><b>8.2</b> Words used in reviews</a></li>
 </ul></li>
-<li class="chapter" data-level="9" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i><b>9</b> References</a></li>
+<li class="chapter" data-level="9" data-path="appendix.html"><a href="appendix.html"><i class="fa fa-check"></i><b>9</b> Appendix</a></li>
+<li class="chapter" data-level="10" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i><b>10</b> References</a></li>
 </ul>
 
       </nav>
@@ -123,198 +124,23 @@
 <h1><span class="header-section-number">7</span> Word analysis</h1>
 <div id="overall-sentiment" class="section level2">
 <h2><span class="header-section-number">7.1</span> Overall sentiment</h2>
-<p>Using the tidytext package <span class="citation">(Robinson and Silge <a href="#ref-R-tidytext">2018</a>)</span>, the text within the character fields <code>Title</code> and <code>Review</code> were analysed. Figure <a href="word-analysis.html#fig:title">7.1</a> shows the ten most common positive, negative and neutral words given in titles. Figure <a href="word-analysis.html#fig:review">7.2</a> shows the same for reviews.</p>
-<p>The following words were reclassified as neutral from negative sentiment as they were overwhelmingly not used in a negative manner: cave; challenging; cold; crashing; desert; dirt; downhill; falls; miss; remarkable; rocky; ruins; shady; steep; unbelievable; unexpected; unusual; wedge; and wild.</p>
-<p>The following words were removed from the analysis as they refer to park names or features and therefore occur frequently: adelaide; admirals; arch; breakaways; chase; coober; flinders; fur; granite; gully; harbor; harbour; island; kangaroo; ki; lofty; morialta; mount; mt; national; park; pedy; pound; ranges; remarkable; rocks; victor; waterfall; and wilpena.</p>
-<p>Some words were also replaced with a synonym (Table <a href="word-analysis.html#tab:changeWords">7.1</a>).</p>
-<hr />
-<table>
-<caption><span id="tab:changeWords">Table 7.1: </span>Words that were changed to a synonym before further analysis</caption>
-<thead>
-<tr class="header">
-<th align="left">word</th>
-<th align="left">changed</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">disappointing</td>
-<td align="left">dissapoint</td>
-</tr>
-<tr class="even">
-<td align="left">disappointed</td>
-<td align="left">dissapoint</td>
-</tr>
-<tr class="odd">
-<td align="left">disappointment</td>
-<td align="left">dissapoint</td>
-</tr>
-<tr class="even">
-<td align="left">colours</td>
-<td align="left">colour</td>
-</tr>
-<tr class="odd">
-<td align="left">color</td>
-<td align="left">colour</td>
-</tr>
-<tr class="even">
-<td align="left">penguins</td>
-<td align="left">penguin</td>
-</tr>
-<tr class="odd">
-<td align="left">beauty</td>
-<td align="left">beautiful</td>
-</tr>
-<tr class="even">
-<td align="left">enjoyed</td>
-<td align="left">enjoy</td>
-</tr>
-<tr class="odd">
-<td align="left">loved</td>
-<td align="left">love</td>
-</tr>
-<tr class="even">
-<td align="left">sadly</td>
-<td align="left">sad</td>
-</tr>
-<tr class="odd">
-<td align="left">difficulty</td>
-<td align="left">difficult</td>
-</tr>
-<tr class="even">
-<td align="left">crowded</td>
-<td align="left">crowd</td>
-</tr>
-<tr class="odd">
-<td align="left">limits</td>
-<td align="left">limit</td>
-</tr>
-<tr class="even">
-<td align="left">falls</td>
-<td align="left">waterfall</td>
-</tr>
-<tr class="odd">
-<td align="left">cycling</td>
-<td align="left">cycle</td>
-</tr>
-<tr class="even">
-<td align="left">cycled</td>
-<td align="left">cycle</td>
-</tr>
-<tr class="odd">
-<td align="left">cyclists</td>
-<td align="left">cycle</td>
-</tr>
-<tr class="even">
-<td align="left">riding</td>
-<td align="left">cycle</td>
-</tr>
-<tr class="odd">
-<td align="left">rides</td>
-<td align="left">cycle</td>
-</tr>
-<tr class="even">
-<td align="left">mtb</td>
-<td align="left">cycle</td>
-</tr>
-<tr class="odd">
-<td align="left">bike</td>
-<td align="left">cycle</td>
-</tr>
-<tr class="even">
-<td align="left">rode</td>
-<td align="left">cycle</td>
-</tr>
-<tr class="odd">
-<td align="left">walking</td>
-<td align="left">walk</td>
-</tr>
-<tr class="even">
-<td align="left">walked</td>
-<td align="left">walk</td>
-</tr>
-<tr class="odd">
-<td align="left">walks</td>
-<td align="left">walk</td>
-</tr>
-<tr class="even">
-<td align="left">stroll</td>
-<td align="left">walk</td>
-</tr>
-<tr class="odd">
-<td align="left">strolling</td>
-<td align="left">walk</td>
-</tr>
-<tr class="even">
-<td align="left">hiking</td>
-<td align="left">walk</td>
-</tr>
-<tr class="odd">
-<td align="left">hiked</td>
-<td align="left">walk</td>
-</tr>
-<tr class="even">
-<td align="left">hike</td>
-<td align="left">walk</td>
-</tr>
-<tr class="odd">
-<td align="left">camping</td>
-<td align="left">camp</td>
-</tr>
-<tr class="even">
-<td align="left">camped</td>
-<td align="left">camp</td>
-</tr>
-<tr class="odd">
-<td align="left">driving</td>
-<td align="left">drive</td>
-</tr>
-<tr class="even">
-<td align="left">drove</td>
-<td align="left">drive</td>
-</tr>
-<tr class="odd">
-<td align="left">penguin</td>
-<td align="left">wildlife</td>
-</tr>
-<tr class="even">
-<td align="left">seals</td>
-<td align="left">wildlife</td>
-</tr>
-<tr class="odd">
-<td align="left">seal</td>
-<td align="left">wildlife</td>
-</tr>
-<tr class="even">
-<td align="left">koala</td>
-<td align="left">wildlife</td>
-</tr>
-<tr class="odd">
-<td align="left">landscape</td>
-<td align="left">nature</td>
-</tr>
-<tr class="even">
-<td align="left">view</td>
-<td align="left">nature</td>
-</tr>
-<tr class="odd">
-<td align="left">views</td>
-<td align="left">nature</td>
-</tr>
-<tr class="even">
-<td align="left">scenery</td>
-<td align="left">nature</td>
-</tr>
-<tr class="odd">
-<td align="left">scenic</td>
-<td align="left">nature</td>
-</tr>
-<tr class="even">
-<td align="left">natural</td>
-<td align="left">nature</td>
-</tr>
-</tbody>
-</table>
+<p>Using the tidytext package <span class="citation">(Robinson and Silge <a href="#ref-R-tidytext">2018</a>)</span>, the text within the character fields <code>Title</code> and <code>Review</code> were analysed. Some words were replaced with a synonym (Appendix Table <a href="appendix.html#tab:changeWords">9.1</a>). This includes ‘lumping’ words such as, say, <code>echidna</code> into <code>wildlife</code>. The following words were reclassified as neutral from negative sentiment as they were overwhelmingly not used in a negative manner: cave; challenging; cold; crashing; desert; dirt; downhill; falls; miss; remarkable; rocky; ruins; shady; steep; unbelievable; unexpected; unusual; wedge; and wild. The following words were removed from the analysis as they refer to park names and therefore occur frequently: adelaide; arch; chase; coffin; coober; flinders; fur; granite; gully; harbor; harbour; island; kangaroo; ki; lofty; morialta; mount; mt; national; park; pedy; pound; ranges; rocks; victor; and wilpena.</p>
+<p>Figure <a href="word-analysis.html#fig:title">7.1</a> shows the ten most common positive, negative and neutral words given in the <code>Title</code> field. The presence of <code>worth</code> in this list suggested that reviewers thought that the positive sentiments they expressed came at a cost (perhaps time and/or distance). A random sample of contexts in which <code>worth</code> occured:</p>
+<ul>
+<li>Worth the Drive</li>
+<li>“Well worth the visit”</li>
+<li>“Worth the drive”</li>
+<li>Worth every kilometre of bumpy road</li>
+<li>“Well worth the visit”</li>
+</ul>
+<p>Figure <a href="word-analysis.html#fig:review">7.2</a> shows the ten most common positive, negative and neutral words given in the <code>Review</code> field. Again, the most frequently occuring words are positive or neutral. Also, <code>worth</code> occurs frequently again, but so does <code>easy</code>. A random sample of contexts in which <code>easy</code> occured:</p>
+<ul>
+<li>We travelled in June and it was chilly. The Park rangers at the station friendly they have an impressive headquarters The remarkable rocks are just that and Admiral’s Arch and the seal colony was very interesting reasonable easy to access plenty of seals.</li>
+<li>Remarkable rocks and Admirals Arch are absolutely enthralling. The path to Admirals Arch is easy to walk and well maintained. Plenty of seals.</li>
+<li>While this park is at the far end of the island it also has some of the best attractions on the island. It is mostly bush with unsealed roads through it and you can expect to see some wildlife such as kangaroos. The roads are good as long as it isn’t wet and are well-maintained. The two attractions at the end of the island, the Remarkable Rocks and the Admirals Arch are both natural attractions that are easy to get to and we found the both to be very interesting. There is an entrance fee which you pay at the park headquarters near the entrance to the park. There is a lot of valuable information available at the park headquarters also.</li>
+<li>The waterfall is a nice getaway from the city life. Came with 2 young kids and the waterfall is easy to access from Adelaide City. Car park is at close proximity as well. There’s a short path to reach the top of the waterfall from the base which is easy to walk, but too rocky for strollers.</li>
+<li>This place is a little of the beaten track but well worth a visit you drive along unsealed roads from streaky bay following the seal signs it is well sign posted the roads are well graded so no worries there. When you park your car you have a 250 short walk to the lookout I can not walk far but it was easy for me. ,When you get to the wooden lookout you can see all the seals below basking in the sun or frolicking in the water or rolling around in the sand and when we were there lots of babies were with there mums. It’s a good idea to have some binoculars with you so get a real good look</li>
+</ul>
 <hr />
 <div class="figure"><span id="fig:title"></span>
 <img src="_main_files/figure-html/title-1.png" alt="Titles had words with positive sentiment much more frequently than words with negative sentiment" width="672" />
@@ -322,6 +148,7 @@
 Figure 7.1: Titles had words with positive sentiment much more frequently than words with negative sentiment
 </p>
 </div>
+<hr />
 <div class="figure"><span id="fig:review"></span>
 <img src="_main_files/figure-html/review-1.png" alt="Reviews used words with positive sentiment more frequently than words with negative sentiment" width="672" />
 <p class="caption">
@@ -331,12 +158,27 @@ Figure 7.2: Reviews used words with positive sentiment more frequently than word
 </div>
 <div id="by-park-sentiment" class="section level2">
 <h2><span class="header-section-number">7.2</span> By park sentiment</h2>
+<p>Figure <a href="word-analysis.html#fig:parkTitle">7.3</a> shows, by park, the five most common positive, negative and neutral words given in the <code>Title</code> field. The lowest frequency at which <code>nature</code> occurs is third. A random sample of contexts in which <code>nature</code> occurs:</p>
+<ul>
+<li>Enjoyable nature walk</li>
+<li>“So many things to see &amp; walks to do - Aussie nature at its best…”</li>
+<li>“Absolute nature”</li>
+<li>“A place to feel and see the magic of nature &amp; experience wonderment”</li>
+<li>“A place to feel and see the magic of nature &amp; experience wonderment”</li>
+</ul>
+<p>Figure <a href="word-analysis.html#fig:parkReview">7.4</a> shows, by park, the five most common positive, negative and neutral words given in the <code>Review</code> field. Each park had <code>hard</code> in the negative words, followed by <code>difficult</code> which occured in most parks. Some examples of the context in which <code>hard</code> occurs:</p>
+<ul>
+<li>This walk is so beautiful and you have a couple of tracks to choose from depending on whether you want a faster or more intense walk/run. I love walking the track straight to the lighthouse, stopping for a drink and some beautiful views and fresh air before heading back down to the waterfall. I find the straight walk there and back hard enough! (Though some reviewers would probably laugh at me lol) the incline is steady but consistent the whole way up! I know some people that do up and down running in under an hour. So this walk is perfect for all people looking for whatever type of walk or workout your prefer. If your elderly or have difficulty breathing/leg injuries etc. I’d give this one a miss. Once you get up there’s only 1 day down and I’d. Ever recommend my nan or grandad try this walk for he scenic value. If your a but older and looking to enjoy waterfall gully, go to the bottom for your photos then drive up to the lighthouse and meet your friends or family up there for a pelt view or some lunch in the restaurant :) If you walk during wetter times of the year this trek is also heaps of fun to get a bit dirtier and see the other few waterfalls looking spectacular. Don’t forget to bring your camera and take some photos at the bottom and along the way :) Also, if your looking for other activities around the area, try cuddly creek, Gorge wildlife park, the big rocking horse, chocolate factory as well :-)</li>
+<li>Lovely day out for the family exploring the stunning landscape and waterfall. It would be hard for someone of low fitness to make it to the top but a nice day out regardless.</li>
+<li>If your feeling fit please put your walking shoe’s on take a bottle of water and go for a walk Autumn is the best time because it’s beautiful and green and if any rain has fallen the waterfall is magnificent it’s a hard walk so be prepared for your heart to go up.Very enjoyable</li>
+</ul>
 <div class="figure"><span id="fig:parkTitle"></span>
 <img src="_main_files/figure-html/parkTitle-1.png" alt="Top ten words in the title text for each sentiment class (positive, negative and neutral) for the parks with the most reviews" width="672" />
 <p class="caption">
 Figure 7.3: Top ten words in the title text for each sentiment class (positive, negative and neutral) for the parks with the most reviews
 </p>
 </div>
+<hr />
 <div class="figure"><span id="fig:parkReview"></span>
 <img src="_main_files/figure-html/parkReview-1.png" alt="Top ten words in the review text for each sentiment class (positive, negative and neutral) for the parks with the most reviews" width="672" />
 <p class="caption">
@@ -347,10 +189,26 @@ Figure 7.4: Top ten words in the review text for each sentiment class (positive,
 </div>
 <div id="activities" class="section level2">
 <h2><span class="header-section-number">7.3</span> Activities</h2>
+<p>Figure <a href="word-analysis.html#fig:reviewActivity">7.5</a> shows how frequently various activities were mentioned in the <code>Review</code> field. This information is essentially the same as in Figure <a href="word-analysis.html#fig:review">7.2</a> but with a focus only on activities.</p>
+<p>Figure <a href="word-analysis.html#fig:parkActivity">7.6</a> shows the frequency with which activities are mentioned in the <code>Review</code> field for the most reviewed parks. Often reviewers mention things done outside the park in their reviews. For example, the reviews for Granite Island that mentioned camping gave lots of information about the area around that park:</p>
+<ul>
+<li>We had initially been disappointed to find out that the penguin population was so small that we wouldn’t be able to see any, but decided to visit the Island anyways. We enjoyed our stroll and the cool granite structures. Our favourite part of visiting Victor Harbour was the hike up the Bluffs and then along the Petrol Cove Path. We spent the night camping in Waitpinga and that was our highlight of the trip. The beach was amazing and so was the hike along the Heysen Trail. We’d strongly advise anyone visiting this area to include some of these bush walks in their visit and next time we go back we’d take more time to do more of this</li>
+<li>Victor Harbour and the Fleurieu Peninsula. Victor Harbor is situated approx 80kms south of Adelaide, the drive takes around 80 minutes depending whether you want to stop at Mclaren Valley. We stayed at the Whalers Inn situated just on the outskirts of Victor Harbor. (Read review) and had all intentions of visiting Kangaroo Island. What is amazing about this area is the huge diversity of landscapes and attractions, which can cause a deviation or detour from your original itinerary. Hence, we never got to see Kangaroo Island, as we found the whole region of the Fleurieu Peninsula absolutely fascinating, stunning and spectacular with dramatic scenery. The natural wilderness mixed with pristine rugged coastline and beaches, truly makes this region Australia’s best natural asset. Victor Harbor is nestled by the sea, with lovely colonial heritage buildings and sites. The town is very quaint with some great old Australian pubs and Inns. There are plenty of restaurants, cafes and shops to keep you entertained. You can take a Heritage walking trial tour and learn the history of buildings like the Old Custom and Stationmaster house. The best thing to do is walk across or catch the horse-drawn wagon across to Granite Island and see the colony of little penguins. The best time to see the penguins is in the early evening around 7pm, as the penguins return home from sea to feed their chicks. (Make sure you take some warm clothes, it…Victor Harbour and the Fleurieu Peninsula. Victor Harbor is situated approx 80kms south of Adelaide, the drive takes around 80 minutes depending whether you want to stop at Mclaren Valley. We stayed at the Whalers Inn situated just on the outskirts of Victor Harbor. (Read review) and had all intentions of visiting Kangaroo Island. What is amazing about this area is the huge diversity of landscapes and attractions, which can cause a deviation or detour from your original itinerary. Hence, we never got to see Kangaroo Island, as we found the whole region of the Fleurieu Peninsula absolutely fascinating, stunning and spectacular with dramatic scenery. The natural wilderness mixed with pristine rugged coastline and beaches, truly makes this region Australia’s best natural asset. Victor Harbor is nestled by the sea, with lovely colonial heritage buildings and sites. The town is very quaint with some great old Australian pubs and Inns. There are plenty of restaurants, cafes and shops to keep you entertained. You can take a Heritage walking trial tour and learn the history of buildings like the Old Custom and Stationmaster house. The best thing to do is walk across or catch the horse-drawn wagon across to Granite Island and see the colony of little penguins. The best time to see the penguins is in the early evening around 7pm, as the penguins return home from sea to feed their chicks. (Make sure you take some warm clothes, it can get very chilly with the sea winds.) If thinking of staying at Cape Jervis before heading to Kangaroo Island then disregard this idea. Victor Harbour is a lovely seaside town and far more appealing and interesting; Whaler’s Inn is approx 30 minutes drive away from Cape Jervis and a far better choice to be positioned. What to do: Walk across to Granite Island and see the penguins at dusk. Visit the towns of Goolwa, Port Elliot, Hindmarsh Island, and Coorong National Park and see the Murray River Mouth. For some awesome scenery take a walk on the “Heysen Trail” which can be connected to just past the Bluff or at Parsons beach or Newland Headlands.(A must do). You can walk this track to Cape Jervis but it takes a couple of days, camping areas are available for keen bushwalkers. Another walk is from Victor Harbor to Port Elliot along the beach. (7kms). All maps can be obtained at the Information Centre. Follow all the tourist brown signs and get lost in the beauty exploring this gorgeous region. From Cape Jervis drive the coastal road back to Adelaide and see some lovely seaside towns. More</li>
+</ul>
 <hr />
-<p><img src="_main_files/figure-html/reviewActivity-1.png" width="672" /></p>
+<div class="figure"><span id="fig:reviewActivity"></span>
+<img src="_main_files/figure-html/reviewActivity-1.png" alt="nature, walk and wildlife are by far the most populat activities mentioned in reviews" width="672" />
+<p class="caption">
+Figure 7.5: nature, walk and wildlife are by far the most populat activities mentioned in reviews
+</p>
+</div>
 <hr />
-<p><img src="_main_files/figure-html/parkActivity-1.png" width="672" /></p>
+<div class="figure"><span id="fig:parkActivity"></span>
+<img src="_main_files/figure-html/parkActivity-1.png" alt="The reviews provided for a park often spill over into surrounding activites. This explains, say, camping being an activity mentioned for Granite Island" width="672" />
+<p class="caption">
+Figure 7.6: The reviews provided for a park often spill over into surrounding activites. This explains, say, camping being an activity mentioned for Granite Island
+</p>
+</div>
 <hr />
 </div>
 </div>

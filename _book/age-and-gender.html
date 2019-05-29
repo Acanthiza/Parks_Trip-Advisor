@@ -101,7 +101,8 @@
 </ul></li>
 <li class="chapter" data-level="8.2" data-path="discussion.html"><a href="discussion.html#words-used-in-reviews"><i class="fa fa-check"></i><b>8.2</b> Words used in reviews</a></li>
 </ul></li>
-<li class="chapter" data-level="9" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i><b>9</b> References</a></li>
+<li class="chapter" data-level="9" data-path="appendix.html"><a href="appendix.html"><i class="fa fa-check"></i><b>9</b> Appendix</a></li>
+<li class="chapter" data-level="10" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i><b>10</b> References</a></li>
 </ul>
 
       </nav>
@@ -123,7 +124,7 @@
 <h1><span class="header-section-number">4</span> Age and gender</h1>
 <div id="model" class="section level2">
 <h2><span class="header-section-number">4.1</span> Model</h2>
-<p>Trend through time (year) in stars given by age and gender of reviewers (and the interaction of age, gender and time) was analysed using a Bayesian binomial generalised linear mixed model. The analysis was run using the rstanarm package <span class="citation">(Stan Development Team <a href="#ref-RN4481">2016</a>)</span> in R <span class="citation">(R Core Team <a href="#ref-R-base">2018</a>)</span>. Month (of review), Park (visited by reviewer) and State (of origin of reviewer) were treated as random effects in the analysis. Each reviewer was then assumed to provide an independent data point for the analysis. A time field was generated as <span class="math inline">\(time = min(Year) + (max(Year) - min(Year))/2\)</span>. The model specification was:</p>
+<p>Trend through time (year) in stars given by age and gender of reviewers (and the interaction of age, gender and time) was analysed using a Bayesian binomial generalised linear mixed model. The analysis was run using the rstanarm package <span class="citation">(Stan Development Team <a href="#ref-RN4481">2016</a>)</span> in R <span class="citation">(R Core Team <a href="#ref-R-base">2019</a>)</span>. Month (of review), Park (visited by reviewer) and State (of origin of reviewer) were treated as random effects in the analysis. Each reviewer was then assumed to provide an independent data point for the analysis. A time field was generated as <span class="math inline">\(time = min(Year) + (max(Year) - min(Year))/2\)</span>. The model specification was:</p>
 <p><code>cbind(Y, 4 - Y) ~ Gender * Age * time + (1 | Month) + (1 | Park) + ,     (1 | State)</code> where <code>Y</code> is Stars-1.</p>
 </div>
 <div id="model-diagnostics" class="section level2">
@@ -180,21 +181,21 @@ Figure 4.4: Collectively the model runs do a reasonable job estimating the data
 <td align="right">2017</td>
 <td align="left">18-24</td>
 <td align="left">Male</td>
-<td align="right">3.64</td>
+<td align="right">3.62</td>
 <td align="left">4 (1 to 5)</td>
 </tr>
 <tr class="even">
 <td align="right">2018</td>
 <td align="left">18-24</td>
 <td align="left">Female</td>
-<td align="right">4.76</td>
+<td align="right">4.78</td>
 <td align="left">5 (4 to 5)</td>
 </tr>
 <tr class="odd">
 <td align="right">2018</td>
 <td align="left">25-34</td>
 <td align="left">Female</td>
-<td align="right">4.80</td>
+<td align="right">4.79</td>
 <td align="left">5 (4 to 5)</td>
 </tr>
 <tr class="even">
@@ -202,13 +203,13 @@ Figure 4.4: Collectively the model runs do a reasonable job estimating the data
 <td align="left">25-34</td>
 <td align="left">Male</td>
 <td align="right">4.75</td>
-<td align="left">5 (4 to 5)</td>
+<td align="left">5 (3 to 5)</td>
 </tr>
 <tr class="odd">
 <td align="right">2018</td>
 <td align="left">35-49</td>
 <td align="left">Female</td>
-<td align="right">4.64</td>
+<td align="right">4.63</td>
 <td align="left">5 (3 to 5)</td>
 </tr>
 <tr class="even">
@@ -222,28 +223,28 @@ Figure 4.4: Collectively the model runs do a reasonable job estimating the data
 <td align="right">2018</td>
 <td align="left">50-64</td>
 <td align="left">Female</td>
-<td align="right">4.67</td>
+<td align="right">4.66</td>
 <td align="left">5 (3 to 5)</td>
 </tr>
 <tr class="even">
 <td align="right">2018</td>
 <td align="left">50-64</td>
 <td align="left">Male</td>
-<td align="right">4.68</td>
+<td align="right">4.66</td>
 <td align="left">5 (3 to 5)</td>
 </tr>
 <tr class="odd">
 <td align="right">2018</td>
 <td align="left">65+</td>
 <td align="left">Female</td>
-<td align="right">4.61</td>
+<td align="right">4.60</td>
 <td align="left">5 (3 to 5)</td>
 </tr>
 <tr class="even">
 <td align="right">2018</td>
 <td align="left">65+</td>
 <td align="left">Male</td>
-<td align="right">4.49</td>
+<td align="right">4.48</td>
 <td align="left">5 (3 to 5)</td>
 </tr>
 </tbody>
@@ -264,7 +265,7 @@ Figure 4.5: Model results - mean credible intervals. Most reviewers give 5 stars
 <p>Stan Development Team (2016). rstanarm: Bayesian applied regression modeling via Stan. R package version 2.13.1. Report. Available at: <a href="http://mc-stan.org/">http://mc-stan.org/</a></p>
 </div>
 <div id="ref-R-base">
-<p>R Core Team (2018). ‘R: A language and environment for statistical computing’. (R Foundation for Statistical Computing: Vienna, Austria.) Available at: <a href="https://www.R-project.org/">https://www.R-project.org/</a></p>
+<p>R Core Team (2019). ‘R: A language and environment for statistical computing’. (R Foundation for Statistical Computing: Vienna, Austria.) Available at: <a href="https://www.R-project.org/">https://www.R-project.org/</a></p>
 </div>
 </div>
             </section>

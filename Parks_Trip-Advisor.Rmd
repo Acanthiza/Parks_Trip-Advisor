@@ -73,6 +73,7 @@ editor_options:
                   , Yearmon = as_date(paste0("01/",Month,"/",Year),tz=Sys.timezone(),format="%d/%B/%Y")
                   , Age = gsub("18-34","18-24",Age)
                   , id = row_number()
+                  , reviews = n_distinct(id)
                   ) %>%
     dplyr::mutate_if(is.character,list(~gsub("^Null$|^Not given$",NA,.))) %>%
     dplyr::select(-month) %>%
@@ -772,7 +773,7 @@ In order to better understand how the data and resulting model are able to infor
 
   fixSentiment <- c("wild","desert","falls","unbelievable","unusual","unexpected","miss","challenging","remarkable","steep","cold","dirt","rocky","crashing","downhill","shady","ruins","cave","wedge")
 
-  removeWords <- c("granite","island","national","park","flinders","ranges","kangaroo","breakaways","chase","victor","harbor","harbour","morialta","adelaide","mt","mount","lofty","coober","pedy","remarkable","rocks","admirals","arch","waterfall","gully","ki","fur","wilpena","pound")
+  removeWords <- c("granite","island","national","park","flinders","ranges","kangaroo","chase","victor","harbor","harbour","morialta","adelaide","mt","mount","lofty","coober","pedy","rocks","arch","gully","ki","fur","wilpena","pound","coffin")
   
   changeWords <- tribble(~word, ~changed
                          , "disappointing","dissapoint"
@@ -780,7 +781,6 @@ In order to better understand how the data and resulting model are able to infor
                          , "disappointment","dissapoint"
                          , "colours","colour"
                          , "color","colour"
-                         , "penguins","penguin"
                          , "beauty","beautiful"
                          , "enjoyed","enjoy"
                          , "loved","love"
@@ -788,7 +788,7 @@ In order to better understand how the data and resulting model are able to infor
                          , "difficulty","difficult"
                          , "crowded","crowd"
                          , "limits","limit"
-                         , "falls","waterfall"
+                         , "beaches","beach"
                          , "cycling","cycle"
                          , "cycled","cycle"
                          , "cyclists","cycle"
@@ -810,21 +810,41 @@ In order to better understand how the data and resulting model are able to infor
                          , "driving","drive"
                          , "drove","drive"
                          , "penguin","wildlife"
-                         , "seals","wildlife"
+                         , "penguins","wildlife"
                          , "seal","wildlife"
+                         , "seals","wildlife"
                          , "koala","wildlife"
+                         , "koalas","wildlife"
+                         , "kangaroos","wildlife" # not kangaroos due to KI
+                         , "echidna","wildlife"
+                         , "platypus","wildlife"
+                         , "bird","wildlife"
+                         , "birds","wildlife"
+                         , "wallabies","wildlife"
+                         , "emu","wildlife"
+                         , "emus","wildlife"
+                         , "animals","wildlife"
+                         , "lions","wildlife" # sea lions
+                         , "sealions","wildlife"
                          , "landscape","nature"
                          , "view","nature"
                          , "views","nature"
                          , "scenery","nature"
                          , "scenic","nature"
                          , "natural","nature"
+                         , "breakaways","nature"
+                         , "remarkable","nature"
+                         , "admirals","nature"
+                         , "waterfall","nature"
+                         , "falls","nature"
+                         , "waterfalls","nature"
+                         , "lighthouse","heritage"
+                         , "ruin","heritage"
                          )
   
-  activities <- c("walk","run","cycle","drive","camp","nature","wildlife")
+  activities <- c("walk","run","cycle","drive","camp","nature","wildlife","heritage","fishing")
 
   datTitle <- dat %>%
-    dplyr::mutate(reviews = n_distinct(id)) %>%
     tidytext::unnest_tokens(word,Title,drop = FALSE) %>%
     dplyr::left_join(changeWords) %>%
     dplyr::mutate(word = if_else(is.na(changed),word,changed)) %>%
@@ -834,7 +854,6 @@ In order to better understand how the data and resulting model are able to infor
     dplyr::filter(!word %in% removeWords)
   
   datReview <- dat %>%
-    dplyr::mutate(reviews = n_distinct(id)) %>%
     tidytext::unnest_tokens(word,Review,drop = FALSE) %>%
     dplyr::left_join(changeWords) %>%
     dplyr::mutate(word = if_else(is.na(changed),word,changed)) %>%
@@ -845,29 +864,22 @@ In order to better understand how the data and resulting model are able to infor
   
 ```
 
-Using the tidytext package [@R-tidytext], the text within the character fields `Title` and `Review` were analysed. Figure \@ref(fig:title) shows the ten most common positive, negative and neutral words given in titles. Figure \@ref(fig:review) shows the same for reviews.
+Using the tidytext package [@R-tidytext], the text within the character fields `Title` and `Review` were analysed. Some words were replaced with a synonym (Appendix Table \@ref(tab:changeWords)). This includes 'lumping' words such as, say, `echidna` into `wildlife`. The following words were reclassified as neutral from negative sentiment as they were overwhelmingly not used in a negative manner: `r vec_to_sentence(sort(fixSentiment),";")`. The following words were removed from the analysis as they refer to park names and therefore occur frequently: `r vec_to_sentence(sort(removeWords),";")`.
 
-The following words were reclassified as neutral from negative sentiment as they were overwhelmingly not used in a negative manner: `r vec_to_sentence(sort(fixSentiment),";")`.
+Figure \@ref(fig:title) shows the ten most common positive, negative and neutral words given in the `Title` field. The presence of `worth` in this list suggested that reviewers thought that the positive sentiments they expressed came at a cost (perhaps time and/or distance). A random sample of contexts in which `worth` occured:
 
-The following words were removed from the analysis as they refer to park names or features and therefore occur frequently: `r vec_to_sentence(sort(removeWords),";")`.
+* `r paste0(datTitle %>% dplyr::filter(word == "worth") %>% dplyr::sample_n(5) %>% dplyr::pull(Title),collapse="\n* ")`
 
-Some words were also replaced with a synonym (Table \@ref(tab:changeWords)).
+Figure \@ref(fig:review) shows the ten most common positive, negative and neutral words given in the `Review` field. Again, the most frequently occuring words are positive or neutral. Also, `worth` occurs frequently again, but so does `easy`. A random sample of contexts in which `easy` occured:
 
----
-
-```{r changeWords}
-
-  kable(changeWords
-        , caption = "Words that were changed to a synonym before further analysis"
-        )
-
-```
+* `r paste0(datReview %>% dplyr::filter(word == "easy") %>% dplyr::sample_n(5) %>% dplyr::pull(Review),collapse="\n* ")`
 
 ---
 
 ```{r title, fig.cap = "Titles had words with positive sentiment much more frequently than words with negative sentiment"}
 
   datForPlot <- datTitle %>%
+    dplyr::count(id, reviews, word, sentiment, sort = TRUE) %>%
     dplyr::count(reviews, word, sentiment, sort = TRUE) %>%
     dplyr::group_by(sentiment) %>%
     dplyr::slice(1:10) %>%
@@ -887,9 +899,12 @@ Some words were also replaced with a synonym (Table \@ref(tab:changeWords)).
 
 ```
 
+---
+
 ```{r review, fig.cap = "Reviews used words with positive sentiment more frequently than words with negative sentiment"}
 
   datForPlot <- datReview %>%
+    dplyr::count(id, reviews, word, sentiment, sort = TRUE) %>%
     dplyr::count(reviews, word, sentiment, sort = TRUE) %>%
     dplyr::group_by(sentiment) %>%
     dplyr::slice(1:10) %>%
@@ -911,7 +926,15 @@ Some words were also replaced with a synonym (Table \@ref(tab:changeWords)).
 
 ## By park sentiment
 
-```{r parkTitle, fig.height = 10, fig.cap = "Top ten words in the title text for each sentiment class (positive, negative and neutral) for the parks with the most reviews"}
+Figure \@ref(fig:parkTitle) shows, by park, the five most common positive, negative and neutral words given in the `Title` field. The lowest frequency at which `nature` occurs is third. A random sample of contexts in which `nature` occurs:
+
+* `r paste0(datTitle %>% dplyr::filter(grepl("nature",Title)) %>% dplyr::sample_n(5) %>% dplyr::pull(Title),collapse="\n* ")`
+
+Figure \@ref(fig:parkReview) shows, by park, the five most common positive, negative and neutral words given in the `Review` field. Each park had `hard` in the negative words, followed by `difficult` which occured in most parks. Some examples of the context in which `hard` occurs:
+
+* `r paste0(datReview %>% dplyr::filter(word == "hard") %>% dplyr::sample_n(3) %>% dplyr::pull(Review),collapse="\n* ")`
+
+```{r parkTitle, fig.height = 8, fig.cap = "Top ten words in the title text for each sentiment class (positive, negative and neutral) for the parks with the most reviews"}
 
   datForPlot <- datTitle %>%
     dplyr::group_by(Park) %>%
@@ -919,20 +942,21 @@ Some words were also replaced with a synonym (Table \@ref(tab:changeWords)).
     dplyr::ungroup() %>%
     dplyr::count(id, word, Park, reviews, sentiment, sort = TRUE) %>%
     dplyr::count(word, Park, reviews, sentiment, sort = TRUE) %>%
-    dplyr::filter(reviews > quantile(unique(reviews), probs = 0.8)) %>%
+    dplyr::filter(reviews > quantile(unique(reviews), probs = 0.5)) %>%
     dplyr::group_by(Park,sentiment) %>%
-    dplyr::slice(1:10) %>%
+    dplyr::slice(1:5) %>%
     dplyr::ungroup() %>%
     dplyr::arrange(Park,n) %>%
     dplyr::mutate(order = row_number()
                   , per = 100*n/reviews
                   , sentiment = fct_explicit_na(sentiment, na_level = "neutral")
                   , sentiment = fct_relevel(sentiment, "positive", "negative")
+                  , label = paste0(Park,". reviews = ",reviews)
                   )
             
   ggplot(datForPlot, aes(order,per,fill=sentiment)) +
     geom_bar(stat = "identity") +
-    facet_wrap(~Park, scales = "free_y", labeller = labeller(Park = label_wrap_gen(20))) +
+    facet_wrap(~label, scales = "free_y", labeller = labeller(label = label_wrap_gen(20))) +
     scale_x_continuous(breaks = datForPlot$order
                        , labels = datForPlot$word
                        , expand = c(0,0)
@@ -943,7 +967,9 @@ Some words were also replaced with a synonym (Table \@ref(tab:changeWords)).
 
 ```
 
-```{r parkReview, fig.cap = "Top ten words in the review text for each sentiment class (positive, negative and neutral) for the parks with the most reviews"}
+---
+
+```{r parkReview, fig.height = 8, fig.cap = "Top ten words in the review text for each sentiment class (positive, negative and neutral) for the parks with the most reviews"}
 
   datForPlot <- datReview %>%
     dplyr::group_by(Park) %>%
@@ -951,20 +977,21 @@ Some words were also replaced with a synonym (Table \@ref(tab:changeWords)).
     dplyr::ungroup() %>%
     dplyr::count(id, word, Park, reviews, sentiment, sort = TRUE) %>%
     dplyr::count(word, Park, reviews, sentiment, sort = TRUE) %>%
-    dplyr::filter(reviews > quantile(unique(reviews), probs = 0.8)) %>%
+    dplyr::filter(reviews > quantile(unique(reviews), probs = 0.5)) %>%
     dplyr::group_by(Park,sentiment) %>%
-    dplyr::slice(1:10) %>%
+    dplyr::slice(1:5) %>%
     dplyr::ungroup() %>%
     dplyr::arrange(Park,n) %>%
     dplyr::mutate(order = row_number()
                   , per = 100*n/reviews
                   , sentiment = fct_explicit_na(sentiment, na_level = "neutral")
                   , sentiment = fct_relevel(sentiment, "positive", "negative")
+                  , label = paste0(Park,". reviews = ",reviews)
                   )
             
   ggplot(datForPlot, aes(order,per,fill=sentiment)) +
     geom_bar(stat = "identity") +
-    facet_wrap(~Park, scales = "free_y", labeller = labeller(Park = label_wrap_gen(20))) +
+    facet_wrap(~label, scales = "free_y", labeller = labeller(label = label_wrap_gen(20))) +
     scale_x_continuous(breaks = datForPlot$order
                        , labels = datForPlot$word
                        , expand = c(0,0)
@@ -979,17 +1006,20 @@ Some words were also replaced with a synonym (Table \@ref(tab:changeWords)).
 
 ## Activities
 
+Figure \@ref(fig:reviewActivity) shows how frequently various activities were mentioned in the `Review` field. This information is essentially the same as in Figure \@ref(fig:review) but with a focus only on activities.
 
+Figure \@ref(fig:parkActivity) shows the frequency with which activities are mentioned in the `Review` field for the most reviewed parks. Often reviewers mention things done outside the park in their reviews. For example, the reviews for Granite Island that mentioned camping gave lots of information about the area around that park:
+
+* `r paste0(datReview %>% dplyr::filter(Park == "Granite Island", word == "camp") %>%  dplyr::pull(Review),collapse="\n* ")`
 
 ---
 
-```{r reviewActivity}
+```{r reviewActivity, fig.cap = paste0(datForPlot %>% dplyr::top_n(3) %>% dplyr::pull(word) %>% vec_to_sentence()," are by far the most populat activities mentioned in reviews")}
 
   datForPlot <- datReview %>%
     dplyr::filter(word %in% activities) %>%
-    dplyr::count(word,id) %>%
-    dplyr::mutate(reviews = n_distinct(id)) %>%
-    dplyr::count(word,reviews) %>%
+    dplyr::count(reviews,word,id) %>%
+    dplyr::count(reviews,word) %>%
     dplyr::mutate(word = fct_reorder(word,n)
                   , per = 100*n/reviews
                   )
@@ -1003,7 +1033,7 @@ Some words were also replaced with a synonym (Table \@ref(tab:changeWords)).
 
 ---
 
-```{r parkActivity}
+```{r parkActivity, fig.cap = "The reviews provided for a park often spill over into surrounding activites. This explains, say, camping being an activity mentioned for Granite Island"}
 
   datForPlot <- datReview %>%
     dplyr::group_by(Park) %>%
@@ -1062,5 +1092,17 @@ The TripAdvisor data has little resolution in stars given for the attributes ava
 ## Words used in reviews
 
 As for the stars analysis, the word analysis showed overwhelmingly positive words were used to describe both overall parks (Figures \@ref(fig:title) & \@ref(fig:review)) or for specific parks (Figures \@ref(fig:parkTitle) & \@ref(fig:parkReview)).
+
+Reviewers most frequently mention `r datReview %>% dplyr::filter(is.na(sentiment)) %>% dplyr::count(word) %>% dplyr::top_n(3,n) %>% dplyr::pull(word) %>% vec_to_sentence(";")` in their reviews along with positive words such as `r datReview %>% dplyr::filter(sentiment == "positive") %>% dplyr::count(word) %>% dplyr::top_n(5,n) %>% dplyr::pull(word) %>% vec_to_sentence(";")`.
+
+# Appendix
+
+```{r changeWords}
+
+  kable(changeWords
+        , caption = "Words that were changed to a synonym before further analysis"
+        )
+
+```
 
 # References
