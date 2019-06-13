@@ -31,6 +31,7 @@ editor_options:
                 ,"ggridges"
                 #,"tmap"
                 ,"tidytext"
+                ,"DT"
                 )
   
   purrr::walk(packages,library,character.only=TRUE)
@@ -81,8 +82,10 @@ editor_options:
                   , Gender = gender
                   , Origin = if_else(Country == "Australia",State,Country)
                   , Text = paste0("Title: ",Title," - Review: ",Review)
+                  , Park = if_else(grepl("Onkaparinga",Park),"Onkaparinga National Park",Park)
+                  , Park = if_else(grepl("Flinders Ranges",Park),"Ikara-Flinders Ranges National Park",Park)
                   ) %>%
-    dplyr::mutate_if(is.character,list(~gsub("^Null$|^Not given$|^null$",NA,.))) %>%
+    dplyr::mutate_if(is.character,list(~gsub("^Null$|^Not given$|^null$|N/A",NA,.))) %>%
     dplyr::select(-month,-age,-gender) %>%
     dplyr::filter(!grepl("13",Age))
 
@@ -142,10 +145,6 @@ Data were taken from Trip Advisor. The site is one of the most popular sources o
 
 For the purposes of this analysis, the search function in Trip Advisor was used to identify all parks, reserves and features in parks and reserves that have been reviewed. Some reviews were captured under a park name, such as "Flinders Chase National Park" and some were captured under a feature name, such as "Flinders Chase Visitor Centre". 
 
-In order to manage the scope of this analysis it was decided to collect reviews in the first instance for parks that were reviewed under their official park names. Where there was a park that is of importance to DEW that had reviews under a feature name rather than a park name, these reviews were also collected. For example, reviews were collected for "Waterfall Gully" rather than for "Cleland Conservation Park". A further current limitation, imposed to manage scope, was exclusion of "iconic sites".
-
-The reviews available were cross referenced against a list of priority parks that DEW has identified through the parks characterisation project to ensure that reviews were captured for all significant non-iconic sites. 
-
 The web scraping software [Octoparse](https://www.octoparse.com/) was used to capture the following elements for analysis: 
 
 * Reviewer name 
@@ -159,13 +158,13 @@ The web scraping software [Octoparse](https://www.octoparse.com/) was used to ca
 
 Note that the web scraping software was able to effectively capture elements such as name, date, title, text and star rating, but that capturing the demographic information about the reviewers was a more difficult process. The demographic information is contained within "hover over" elements of the Trip Advisor web pages. Code was written to scrape these elements for the initial data scrape; manual cutting and pasting was used for scrape updates. It may be for this reason that most academic analysis of Trip Advisor reviews does not extend to considering demographic information and that this report may offer some new information about the utility of this data source. 
 
-Once the data was captured it was cleaned so that it could be imported into SPSS for quantitative analysis and Nvivo for qualitative analysis. The cleaning included:
+Once the data was captured it was cleaned so that it could be more easily used for qualitative analysis. The cleaning included:
 
 * Ensuring that each review was attached to a unique reviewer name 
 * Standardising place names to ensure that spellings were correct 
 * Allocating state and/or countries to reviewers who gave only partial location information such as city of residence
 * Ensuring that the data set contained no blank cells
-* Removing reviewers under 18 years old (Age field equal to '13-18')
+* Removing reviewers under 18 years old (remove reviewers where the age field was equal to `13-17`)
 
 ## Workflow
 
@@ -223,7 +222,7 @@ Some of the key data fields were left blank in many reviews. For example, `r sum
 
 There are several variables in the data with relatively few levels: `r vec_to_sentence(unique(pull(datCount,variable)),";")`. Figure \@ref(fig:plotDiscrete) shows the most frequently occuring values in each of those variables.
 
-```{r plotDiscrete, fig.height = 10, fig.cap = "Most frequent values in each of the variables. Most reviews are from Adelaide based 50-64 year olds called Charmaine who visited Flinders Chase in January 2016 and gave it 5 stars"}
+```{r plotDiscrete, fig.height = 12, fig.cap = "Most frequent values in each of the variables. Most reviews were from Adelaide based 50-64 year olds called Charmaine who visited Flinders Chase in January 2016 and gave it 5 stars"}
   
   ggplot(datCount %>%
            dplyr::filter(n > 4)%>%
@@ -242,8 +241,7 @@ There are several variables in the data with relatively few levels: `r vec_to_se
 
 ```
 
-
-# Data model
+# Model of stars (rating)
 
 ```{r model}
 
@@ -302,9 +300,9 @@ There are several variables in the data with relatively few levels: `r vec_to_se
 
 ## Model
 
-Trend through time (year) in stars given by age and gender of reviewers (and the interaction of age, gender and time) was analysed using a Bayesian binomial generalised linear mixed model. The analysis was run using the rstanarm package [@RN4481] in R [@R-base]. Month (of review), Park (visited by reviewer) and State (of origin of reviewer) were treated as random effects in the analysis. Each reviewer was then assumed to provide an independent data point for the analysis. A time field was generated as $time = min(Year) + (max(Year) - min(Year))/2$. The model specification was:
+The effect of age, gender and year of review on the stars given were analysed using a Bayesian binomial generalised linear mixed model. The analysis was run using the rstanarm package [@RN4481] in R [@R-base]. Park (visited by reviewer) and Origin (of reviewer - state if reviewer was from Australia or country if not) were treated as random effects in the analysis. The `Feature/location` field was ignored for this analysis. The model specification was:
 
-``r format(formula(mod))`` where `Y` is Stars-1.
+``r format(formula(mod))`` where `Y` is Stars-1. This required the model to estimate `r length(mod$coefficients)` parameters.
 
 ## Model diagnostics
 
@@ -355,12 +353,17 @@ Figure \@ref(fig:meanVsSd) shows how the mean and standard deviation of the mode
 
 In order to better understand how the data and resulting model are able to inform management, a number (4000) of simulations were made based on the model results (strictly, draws were made from the posterior predictive distribution). Each simulation generated a prediction based on a single draw of the model parameters from their predicted distributions. Table \@ref(tab:predict) shows a summary of these results.
 
+Figure \@ref(fig:modResult) shows a plot of the model results. Overwhelmingly, reviewers give 5 stars, irrespective of age or gender.
+
 ```{r predict}
 
   # Use the model to predict results over variables of interest
   modPred <- datMod %>%
-    dplyr::select(time,Age,Gender) %>%
+    dplyr::select(Age,Gender) %>%
     unique() %>%
+    dplyr::group_by(Age,Gender) %>%
+    tidyr::expand(time = seq(min(datMod$time),max(datMod$time),1)) %>%
+    dplyr::ungroup() %>%
     dplyr::mutate(col = row.names(.)
                   , Y = 4
                   , medYear = unique(datMod$medYear)
@@ -406,13 +409,18 @@ In order to better understand how the data and resulting model are able to infor
 
 ---
 
-Figure \@ref(fig:modResult) shows a plot of the model results. Overwhelmingly, reviewers give 5 stars, irrespective of age or gender.
-
-```{r modResult, fig.cap = "Model results - mean credible intervals. Most reviewers give 5 stars irrespective of age or gender. The lower 95% credible intervals go to three stars in almost every case - i.e. more than 95% of responses are three stars or more. Only for 18-24 year old males in 2015 do the 95% credible intervals go to 1 star"}
+```{r modResult, fig.cap = "Most reviewers give 5 stars irrespective of age or gender. Line is mean credible estimate and shading is 95% credible intervals. The lower 95% credible intervals go to three stars in almost every case - i.e. more than 95% of responses are three stars or more. Dots are original data points (jittered for clarity)"}
 
   ggplot(data=modRes,aes(Year,Mean,group=Age)) +
     geom_line() +
     geom_ribbon(aes(ymin = modci90lo, ymax = modci90up, fill = Age), alpha = 0.6) +
+    geom_jitter(data = datMod
+                , aes(Year,Stars,group=Age)
+                , alpha=0.5
+                , size =0.5
+                , width = 0.1
+                , height = 0.1
+                ) +
     scale_colour_viridis_d() +
     scale_fill_viridis_d() +
     facet_grid(Age~Gender
@@ -426,14 +434,17 @@ Figure \@ref(fig:modResult) shows a plot of the model results. Overwhelmingly, r
 
 ### Park
 
-Table \@ref(tab:predict2) shows a summary of predicted results for each Park, based on the 'average' age and gender of reviewers.
+Table \@ref(tab:predict2) shows a summary of predicted results for each Park. These results assume a population of reviewers split evenly among the levels of age, gender and year of review. Figure \@ref(fig:modResult2) shows a plot of the results for each park.
 
 ```{r predict2}
 
   # Use the model to predict results over variables of interest
   modPred2 <- datMod %>%
-    dplyr::select(time,Park,Gender,Age) %>%
+    dplyr::select(Age,Gender,Park) %>%
     unique() %>%
+    dplyr::group_by(Age,Gender,Park) %>%
+    tidyr::expand(time = seq(min(datMod$time),max(datMod$time),1)) %>%
+    dplyr::ungroup() %>%
     dplyr::mutate(col = row.names(.)
                   , Y = 4
                   , medYear = unique(datMod$medYear)
@@ -454,8 +465,7 @@ Table \@ref(tab:predict2) shows a summary of predicted results for each Park, ba
 
   # summarise the results
   modRes2 <- as_tibble(modPred2) %>%
-    dplyr::filter(Age == "35-49") %>%
-    dplyr::group_by(Year,Gender,Park) %>%
+    dplyr::group_by(Year,Park) %>%
     dplyr::summarise(n = n()
                      , nCheck = nrow(as_tibble(mod))
                      , modMedian = quantile(Stars,0.5)
@@ -466,22 +476,22 @@ Table \@ref(tab:predict2) shows a summary of predicted results for each Park, ba
                      , text = paste0(round(modMedian,2)," (",round(modci90lo,2)," to ",round(modci90up,2),")")
                      ) %>%
     dplyr::ungroup() %>%
-    dplyr::left_join(datMod %>% dplyr::filter(Age == "18-34") %>% dplyr::count(Park) %>% dplyr::rename(reviews=n)) %>%
+    dplyr::left_join(datMod %>% dplyr::filter(Age == "35-49") %>% dplyr::count(Park) %>% dplyr::rename(reviews=n)) %>%
     dplyr::mutate_if(is.numeric,round,2) %>%
     dplyr::mutate(label = Park
                   , label = paste0(label,": ",reviews," reviews")
                   )
   
   modRes2Tab <- modRes2 %>%
-          dplyr::select(Park,Gender,Year,Mean,`Median and range in 90% credible intervals`=text) %>%
-          dplyr::group_by(Park,Gender) %>%
+          dplyr::select(Park,Year,Mean,`Median and range in 90% credible intervals`=text) %>%
+          dplyr::group_by(Park) %>%
           dplyr::filter(Year == max(Year)) %>%
           dplyr::ungroup() %>%
           dplyr::mutate(Park = fct_reorder(Park,Mean,.desc = TRUE)) %>%
           dplyr::arrange(desc(Mean))
   
   kable(modRes2Tab
-        , caption = paste0("Summary of model results for the last year with data. ", modRes2Tab %>% dplyr::slice(1:2) %>% pull(Park) %>% vec_to_sentence(), " have the highest ratings (based on mean credible estimates)")
+        , caption = paste0("Summary of model results for the last year with data. ", modRes2Tab %>% dplyr::top_n(2,Mean) %>% pull(Park) %>% vec_to_sentence(), " have the highest ratings (based on mean credible estimates)")
         )
   
 
@@ -489,14 +499,19 @@ Table \@ref(tab:predict2) shows a summary of predicted results for each Park, ba
 
 ---
 
-```{r modResult2, fig.cap = "Model results - mean credible intervals. Belair and Point Labatt both seem to be getting increasingly negative reviews - although the mean credible estimate for both remains above 4 stars currently"}
+```{r modResult2, fig.cap = "Line is mean credible estimate and shading is 95% credible intervals. Dots are original data points (jittered for clarity)"}
 
   ggplot(data=modRes2,aes(Year,Mean,fill=Park)) +
     geom_line() +
     geom_ribbon(aes(ymin = modci90lo, ymax = modci90up), alpha = 0.5) +
-    facet_grid(Gender~label
-               , labeller = labeller(label = label_wrap_gen(20))
-               ) +
+    geom_jitter(data = datMod
+                , aes(Year,Stars)
+                , alpha=0.5
+                , size =0.3
+                , width = 0.2
+                , height = 0.1
+                ) +
+    facet_wrap(~Park) +
     labs(y = "Stars - mean credible value"
          , subtitle = "Shading represents 95% credible intervals"
          ) +
@@ -512,14 +527,17 @@ Table \@ref(tab:predict2) shows a summary of predicted results for each Park, ba
 
 ### Origin
 
-Table \@ref(tab:predict3) shows a summary of these results.
+Table \@ref(tab:predict3) shows a summary of results for the origin of the reviewer. These results assume a population of reviewers split evenly among the levels of age, gender and year of review. Figure \@ref(fig:modResult3) shows a plot of the results for each park.
 
 ```{r predict3}
 
   # Use the model to predict results over variables of interest
   modPred3 <- datMod %>%
-    dplyr::select(time,Origin,Gender,Age) %>%
+    dplyr::select(Age,Gender,Origin) %>%
     unique() %>%
+    dplyr::group_by(Age,Gender,Origin) %>%
+    tidyr::expand(time = seq(min(datMod$time),max(datMod$time),1)) %>%
+    dplyr::ungroup() %>%
     dplyr::mutate(col = row.names(.)
                   , Y = 4
                   , medYear = unique(datMod$medYear,na.rm=TRUE)
@@ -540,8 +558,7 @@ Table \@ref(tab:predict3) shows a summary of these results.
 
   # summarise the results
   modRes3 <- as_tibble(modPred3) %>%
-    dplyr::filter(Age == "35-49") %>%
-    dplyr::group_by(Year,Gender,Origin) %>%
+    dplyr::group_by(Year,Origin) %>%
     dplyr::summarise(n = n()
                      , nCheck = nrow(as_tibble(mod))
                      , modMedian = quantile(Stars,0.5)
@@ -552,15 +569,11 @@ Table \@ref(tab:predict3) shows a summary of these results.
                      , text = paste0(round(modMedian,2)," (",round(modci90lo,2)," to ",round(modci90up,2),")")
                      ) %>%
     dplyr::ungroup() %>%
-    dplyr::left_join(datMod %>% dplyr::filter(Age == "35-49") %>% dplyr::count(Origin) %>% dplyr::rename(reviews=n)) %>%
-    dplyr::mutate_if(is.numeric,round,2) %>%
-    dplyr::mutate(label = Origin
-                  , label = paste0(label,": ",reviews," reviews")
-                  )
+    dplyr::mutate_if(is.numeric,round,2)
   
   modRes3Tab <- modRes3 %>%
-          dplyr::select(Origin,Gender,Year,Mean,`Median and range in 90% credible intervals`=text) %>%
-          dplyr::group_by(Origin,Gender) %>%
+          dplyr::select(Origin,Year,Mean,`Median and range in 90% credible intervals`=text) %>%
+          dplyr::group_by(Origin) %>%
           dplyr::filter(Year == max(Year)) %>%
           dplyr::ungroup() %>%
           dplyr::mutate(Origin = fct_reorder(Origin,Mean,.desc = TRUE)) %>%
@@ -574,21 +587,27 @@ Table \@ref(tab:predict3) shows a summary of these results.
 
 ---
 
-```{r modResult3, fig.cap = paste0("Model results - mean credible intervals. California and the North Island of New Zealand both appear to have increased the stars they give in reviews through time, however the total number of reviews are low in each case so this result should be treated cautiously. There is very little trend in stars given by origin of reviewers for other origins")}
+```{r modResult3, fig.cap = "Line is mean credible estimate and shading is 95% credible intervals. Dots are original data points (jittered for clarity)"}
 
   ggplot(data=modRes3,aes(Year,Mean,fill=Origin)) +
     geom_line() +
     geom_ribbon(aes(ymin = modci90lo, ymax = modci90up), alpha = 0.5) +
+    geom_jitter(data = datMod
+                , aes(Year,Stars)
+                , alpha=0.5
+                , size =0.3
+                , width = 0.2
+                , height = 0.1
+                ) +
     scale_fill_viridis_d(end=0.9) +
-    facet_grid(Gender~label
-               , labeller = labeller(label = label_wrap_gen(20))
-               ) +
+    facet_wrap(~Origin) +
     labs(y = "Mean credible value for Stars"
          , subtitle = "Shading represents 95% credible intervals"
          ) +
     theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)
           , legend.position = "none"
-          )
+          ) +
+    coord_cartesian(ylim=c(1,5))
 
 ```
 
@@ -681,6 +700,7 @@ Table \@ref(tab:predict3) shows a summary of these results.
                   ) %>%
     dplyr::filter(!word %in% removeWords)
   
+  
 ```
 
 ```{r dataWordOverall}
@@ -703,19 +723,21 @@ Table \@ref(tab:predict3) shows a summary of these results.
 
 ```
 
-Using the tidytext package [@R-tidytext], the text within the character fields `Title` and `Review` were analysed. Some words were replaced with a synonym (Appendix Table \@ref(tab:changeWords)). This includes 'lumping' words such as, say, `echidna` into `wildlife`. The following words were reclassified as neutral from negative sentiment as they were overwhelmingly not used in a negative manner: `r vec_to_sentence(sort(fixSentiment),";")`. The following words were removed from the analysis as they refer to park or place names, and occur frequently, but do not add much to the analysis: `r vec_to_sentence(sort(removeWords),";")`.
+Using the tidytext package [@R-tidytext], the text within the character fields `Title` and `Review` were analysed. Some words were replaced with a synonym (Appendix Table \@ref(tab:changeWords)). This includes 'lumping' words such as, say, `echidna` into `wildlife`. 
+
+The following words were reclassified as neutral from negative sentiment as they were overwhelmingly not used in a negative manner: `r vec_to_sentence(sort(fixSentiment),";")`. The following words were removed from the analysis as they refer to park or place names, and occur frequently, but do not add much to the analysis: `r vec_to_sentence(sort(removeWords),";")`.
 
 Figure \@ref(fig:wordOverall) shows the ten most common positive, negative and neutral words given in the combined `Title` and `Review` fields.
 
-The most frequent word with positive sentiment was `r mostPos`. A random sample of contexts in which `r mostPos` occured:
+The most frequent word with positive sentiment was ``r mostPos``. A random sample of contexts in which ``r mostPos`` occured:
 
 * `r paste0(datWord %>% dplyr::select(Title) %>% unique() %>% dplyr::filter(grepl(mostPos,Title)) %>% dplyr::sample_n(5) %>% dplyr::pull(Title),collapse="\n* ")`
 
-The most frequent word with neutral sentiment was `r mostNeut`. A random sample of contexts in which `r mostNeut` occured:
+The most frequent word with neutral sentiment was ``r mostNeut``. A random sample of contexts in which ``r mostNeut`` occured:
 
 * `r paste0(datWord %>% dplyr::select(Title) %>% unique() %>% dplyr::filter(grepl(mostNeut,Title)) %>% dplyr::sample_n(5) %>% dplyr::pull(Title),collapse="\n* ")`
 
-The most frequent word with negative sentiments was `r mostNeg`. A random sample of contexts in which `r mostNeg` occurred:
+The most frequent word with negative sentiments was ``r mostNeg``. A random sample of contexts in which ``r mostNeg`` occurred:
 
 * `r paste0(datWord %>% dplyr::select(Title) %>% unique() %>% dplyr::filter(grepl(mostNeg,Title)) %>% dplyr::sample_n(5) %>% dplyr::pull(Title),collapse="\n* ")`
 
@@ -770,21 +792,23 @@ The most frequent word with negative sentiments was `r mostNeg`. A random sample
 
 Figure \@ref(fig:wordPark) shows, by park, the five most common positive, negative and neutral words given in the combined `Title` and `Review` fields.
 
-Most parks had `r mostFreqPos` in their positive words, for example:
+Most parks had ``r mostFreqPos`` in their positive words, for example:
 
 * `r paste0(datWord %>% dplyr::select(Title) %>% unique() %>% dplyr::filter(grepl(mostFreqPos,Title)) %>% dplyr::sample_n(5) %>% dplyr::pull(Title),collapse="\n* ")`
 
-Most parks had `r mostFreqNeg` in their negative words, for example:
+Most parks had ``r mostFreqNeg`` in their negative words, for example:
 
 * `r paste0(datWord %>% dplyr::select(Title) %>% unique() %>% dplyr::filter(grepl(paste0("\\b",mostFreqNeg,"\\b"),Title)) %>% dplyr::sample_n(5) %>% dplyr::pull(Title),collapse="\n* ")`
 
 ---
 
-```{r wordPark, fig.height = 10, fig.cap = "Top ten words in each sentiment class (positive, negative and neutral) for the parks with the most reviews"}
+```{r wordPark, fig.height = 12, fig.cap = "Top ten words in each sentiment class (positive, negative and neutral) for the parks with the most reviews"}
 
   ggplot(datForPlot, aes(order,per,fill=sentiment)) +
     geom_bar(stat = "identity") +
-    facet_wrap(~label, scales = "free_y", labeller = labeller(label = label_wrap_gen(15))) +
+    facet_wrap(~Park, ncol = 3, scales = "free_y"
+               #, labeller = labeller(label = label_wrap_gen(15))
+               ) +
     scale_x_continuous(breaks = datForPlot$order
                        , labels = datForPlot$word
                        , expand = c(0,0)
@@ -832,19 +856,15 @@ Most parks had `r mostFreqNeg` in their negative words, for example:
 
 ```
 
-These activities were searched for in the combined `Title` and `Review` fields: `r searches %>% dplyr::filter(Type == "activity") %>% dplyr::count(Use) %>% dplyr::pull(Use) %>% unique() %>% vec_to_sentence(";")`
+These activities were searched for in the combined `Title` and `Review` fields: `r searches %>% dplyr::filter(Type == "activity") %>% dplyr::count(Use) %>% dplyr::pull(Use) %>% unique() %>% vec_to_sentence(";")`. Appendix Table \@ref(tab:activities) shows which words were treated as synonyms for each activity.
 
-Appendix Table \@ref(tab:activities) shows which words were treated as synonyms for each activity.
+## Overall activities
 
 Figure \@ref(fig:activityOverall) shows how frequently each of those activities were mentioned overall.
 
-Figure \@ref(fig:activityPark) shows how frequently each of those activities were mentioned for the most visited parks.
-
-See appendix Table \@ref(tab:activityAll) for the full list of parks and activities.
-
 ---
 
-```{r activityOverall, fig.cap = paste0(datForPlot %>% dplyr::top_n(3) %>% dplyr::pull(word) %>% vec_to_sentence()," are by far the most popular activities mentioned in reviews")}
+```{r activityOverall, fig.cap = paste0(activities %>% dplyr::top_n(3,per) %>% dplyr::pull(Use) %>% vec_to_sentence()," are the most popular activities mentioned in reviews")}
 
   activities %>%
     ggplot(aes(Use,per)) +
@@ -855,23 +875,167 @@ See appendix Table \@ref(tab:activityAll) for the full list of parks and activit
 
 ---
 
-```{r activityPark, fig.height = 12, fig.cap = "The reviews provided for a park often spill over into surrounding activites. This explains, say, camping being an activity mentioned for Granite Island"}
+## Activities by park
 
-  activitiesPark %>%
-    dplyr::filter(n > quantile(n, probs = 0.75)) %>%
+Figure \@ref(fig:activityByActivity) shows, by activity, how frequently each of those activities were mentioned for the most visited parks. Figure \@ref(fig:activityByPark) shows, by park, how frequently each of those activities were mentioned for the most visited parks.
+
+See appendix Table \@ref(tab:activityAll) for the full list of parks and activities.
+
+```{r activityByActivity, fig.height = 14, fig.cap = "Top 10 activities - frequency within park"}
+
+  datForPlot <- activitiesPark %>%
+    dplyr::inner_join(activities %>% dplyr::top_n(10,reviews) %>% dplyr::select(Use)) %>%
+    dplyr::group_by(Use) %>%
+    dplyr::top_n(10,reviews) %>%
+    dplyr::ungroup() %>%
     dplyr::arrange(Use,per) %>%
     dplyr::mutate(order = row_number()
                   , Use = fct_reorder(Use,desc(per))
-                  ) %>%
-    ggplot(aes(order,per)) +
-      geom_bar(stat = "identity") +
-      scale_x_continuous(breaks = activitiesPark$order
-                       , labels = activitiesPark$Park
+                  )
+
+  ggplot(datForPlot, aes(order,per)) +
+    geom_bar(stat = "identity") +
+    scale_x_continuous(breaks = datForPlot$order
+                       , labels = datForPlot$Park
                        , expand = c(0,0)
                        ) +
+    coord_flip() +
+    facet_wrap(~Use,scales = "free",ncol=2) +
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+    labs(x = "Park", y = "Percentage of park reviews")
+
+```
+
+---
+
+```{r activityByPark, fig.height = 12, fig.cap = "Top 10 parks - frequency of activities within park"}
+
+  datForPlot <- activitiesPark %>%
+    dplyr::inner_join(activitiesPark %>% dplyr::select(Park,n) %>% unique() %>% dplyr::top_n(10,n)) %>%
+    dplyr::arrange(Park,per) %>%
+    dplyr::mutate(order = row_number()
+                  , Park = fct_reorder(Park,desc(per))
+                  )
+
+  ggplot(datForPlot, aes(order,per)) +
+    geom_bar(stat = "identity") +
+    scale_x_continuous(breaks = datForPlot$order
+                       , labels = datForPlot$Use
+                       , expand = c(0,0)
+                       ) +
+    coord_flip() +
+    facet_wrap(~Park,scales = "free",ncol=2) +
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+```
+
+---
+
+# Facilities
+
+```{r dataFacility}
+  
+  datSentence <- dat %>%
+    tidytext::unnest_tokens(sentence,Text,token="sentences",drop=FALSE) %>%
+    dplyr::mutate(sentenceID = row_number()) %>%
+    tidytext::unnest_tokens(word,sentence,drop=FALSE) %>%
+    dplyr::left_join(tidytext::get_sentiments("afinn")) %>%
+    dplyr::group_by(id,sentenceID,sentence) %>%
+    dplyr::summarise(sent = sum(score,na.rm=TRUE)) %>%
+    dplyr::ungroup() %>%
+    dplyr::mutate(sentClass = if_else(sent > 0,"positive",if_else(sent < 0,"negative","neutral"))
+                  , sentClass = fct_relevel(sentClass,"positive","neutral")
+                  )
+
+  facilities <- searches %>%
+    dplyr::filter(Type == "facility") %>%
+    dplyr::group_by(Use) %>%
+    tidyr::nest() %>%
+    dplyr::mutate(facility = map(data
+                                 , function(x) tibble(facility = str_detect(tolower(datSentence$sentence),tolower(paste(x$Find,collapse="|")))) %>%
+                                   dplyr::bind_cols(datSentence)
+                                 )
+                  ) %>%
+    tidyr::unnest(facility)
+  
+  facilitiesOverall <- facilities %>%
+    dplyr::filter(facility) %>%
+    dplyr::group_by(Use,sentClass) %>%
+    dplyr::summarise(n = n()
+                     , sent = mean(sent)
+                     ) %>%
+    dplyr::ungroup() %>%
+    dplyr::mutate(per = 100*n/nrow(dat))
+    
+  
+  facilitiesPark <- facilities %>%
+    dplyr::left_join(dat %>% add_count(Park) %>% select(id,Park,n)) %>%
+    dplyr::filter(facility) %>%
+    dplyr::group_by(Park,n,Use,sentClass) %>%
+    dplyr::summarise(sentences = n()
+                     , reviews = n_distinct(id)
+                     , sent = mean(sent)
+                     ) %>%
+    dplyr::ungroup() %>%
+    dplyr::mutate(per = 100*reviews/n)
+
+```
+
+These facilities were searched for in the combined `Title` and `Review` fields: `r searches %>% dplyr::filter(Type == "facility") %>% dplyr::count(Use) %>% dplyr::pull(Use) %>% unique() %>% vec_to_sentence(";")`. Appendix Table \@ref(tab:facilities) shows which words were treated as synonyms for each type of facility.
+
+The sentiment of the sentence in which facilities were mentioned was determined using the AFINN lexicon [@AFINN], provided by the tidytext package [@R-tidytext].
+
+## Overall facilities
+
+Figure \@ref(fig:facilityOverall) shows how frequently each facility was mentioned, including the sentiment of the sentence in which the facility was mentioned.
+
+---
+
+```{r facilityOverall, fig.cap = "Facilities most frequently mentioned in reviews and the sentiment of the sentence in which they occur"}
+
+  facilitiesOverall %>%
+    dplyr::mutate(Use = fct_reorder(Use,per)) %>%
+    ggplot(aes(Use,per,fill=fct_rev(sentClass))) +
+      geom_bar(stat = "identity", position = "dodge") +
       coord_flip() +
-      facet_wrap(~Use,scales = "free_y",ncol=2) +
-      theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+      labs(x = "Facilities", y = "Percentage of reviews"
+           , fill = "Sentiment of sentence"
+           ) +
+      scale_fill_viridis_d(guide = guide_legend(reverse=TRUE))
+
+```
+
+---
+
+## Facilities by park
+
+Figure \@ref(fig:facilityByPark) shows, by park, how frequently each facility was mentioned for the most visited parks, including the sentiment of the sentence in which the facility was mentioned.
+
+See appendix Table \@ref(tab:facilityAll) for the full list of parks and facilities.
+
+---
+
+```{r facilityByPark, fig.height = 12, fig.cap = "Top 10 parks - frequency of facilities within park"}
+
+  datForPlot <- facilitiesPark %>%
+    dplyr::inner_join(facilitiesPark %>% dplyr::select(Park,n) %>% unique() %>% dplyr::top_n(10,n)) %>%
+    dplyr::arrange(Park,per) %>%
+    dplyr::mutate(order = row_number()
+                  , Use = fct_reorder(Use,per)
+                  )
+
+  ggplot(datForPlot, aes(Use,per,fill=fct_rev(sentClass))) +
+    geom_bar(stat = "identity") +
+    coord_flip() +
+    facet_grid(Park~sentClass
+               , labeller = labeller(Park = label_wrap_gen(15))
+               ) +
+    theme(strip.text.y = element_text(angle = 0)) +
+    labs(y = "Percentage of reviews"
+         , fill = "Review sentiment"
+         , x = "Park"
+         ) +
+    scale_fill_viridis_d(guide = guide_legend(reverse=TRUE))
 
 ```
 
@@ -897,11 +1061,11 @@ There was very little effect of the origin of a reviewer on the rating given. In
 
 ### Summary
 
-The TripAdvisor data has little resolution in stars given for the attributes available for analysis. Most reviewers give South Australian DEW managed parks very good reviews - roughly 4.5 stars on average.
+The TripAdvisor data has little resolution in stars given for the attributes available for analysis. Most reviewers give South Australian DEW managed parks very good reviews - roughly `r dat %>% pull(Stars) %>% mean() %>% round(1)` stars on average.
 
 ## Words used in reviews
 
-As for the stars analysis, the word analysis showed overwhelmingly positive words were used to describe both overall parks (e.g. Figure \@ref(fig:wordOverall) and specific parks (Figures \@ref(fig:wordPark)).
+As for the stars analysis, the word analysis showed overwhelmingly positive words were used to describe both overall parks (e.g. Figure \@ref(fig:wordOverall) and specific parks Figures \@ref(fig:wordPark)).
 
 Reviewers most frequently mentioned `r datWord %>% dplyr::filter(sentiment == "neutral") %>% dplyr::count(word) %>% dplyr::top_n(3,n) %>% dplyr::pull(word) %>% vec_to_sentence(";")` in their reviews along with positive words such as `r datWord %>% dplyr::filter(sentiment == "positive") %>% dplyr::count(word) %>% dplyr::top_n(5,n) %>% dplyr::pull(word) %>% vec_to_sentence(";")`.
 
@@ -909,7 +1073,13 @@ Reviewers most frequently mentioned `r datWord %>% dplyr::filter(sentiment == "n
 
 The most popular activities in parks (and % of reviews in which the activity was mentioned) were:
  
- * `paste0(activities %>% dplyr::top_n(3,per) %>% dplyr::pull(text),collapse = "\n* ")`
+ * `r paste0(activities %>% dplyr::top_n(3,per) %>% dplyr::pull(text),collapse = "\n* ")`
+ 
+## Facilities
+
+The faciltities most mentioned in reviews (and % of reviews in which the activity was mentioned) were:
+ 
+ * `r paste0(facilitiesOverall %>% dplyr::group_by(Use) %>% dplyr::summarise(per=100*sum(n)/nrow(dat)) %>% dplyr::mutate(text = paste0(Use,": ",round(per,1),"%")) %>% dplyr::top_n(3,per) %>% dplyr::pull(text),collapse = "\n* ")`
 
 # Appendix
 
@@ -928,7 +1098,7 @@ The most popular activities in parks (and % of reviews in which the activity was
 ```{r activities}
 
   kable(searches %>% dplyr::filter(Type == "activity") %>% dplyr::select(-Notes)
-        , caption = "Activities and associated synonyms. '.?' means match a space zero or one time. (?!...) is a negative lookahead (e.g. find 'dog' without 'fence')"
+        , caption = "Activities and associated synonyms, including regular expression syntax used in searches. e.g. '.?' means match a space zero or one time; (?!...) is a negative lookaround (e.g. used for find 'dog' without 'fence')"
         )
 
 ```
@@ -951,6 +1121,40 @@ The most popular activities in parks (and % of reviews in which the activity was
             ) 
 
 ```
+
+---
+
+## Facilities
+
+```{r facilities}
+
+  kable(searches %>% dplyr::filter(Type == "facility") %>% dplyr::select(-Notes)
+        , caption = "Facilities and associated synonyms, including regular expression syntax used in searches. e.g. '.?' means match a space zero or one time"
+        )
+
+```
+
+---
+
+```{r facilityAll,results="asis"}
+
+  cat("<table>",paste0("<caption>","(#tab:facilityAll)","Full list of facilities and parks","</caption>"),"</table>", sep = "\n")
+  
+  datatable(facilitiesPark %>%
+              dplyr::mutate_if(is.numeric,round,1) %>%
+              dplyr::select(Facility = Use
+                            , Park
+                            , Reviews = n
+                            , Sentiment = sentClass
+                            , `Mention facility` = reviews
+                            , Percentage = per
+                            )
+            , filter = "top"
+            ) 
+
+```
+
+---
 
 ## R packages used
 
