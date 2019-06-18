@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html >
+
+<head>
+
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>7 Wildlife | Analysis of Trip Advisor data relating to South Australian parks</title>
+  <meta name="description" content="7 Wildlife | Analysis of Trip Advisor data relating to South Australian parks">
+  <meta name="generator" content="bookdown  and GitBook 2.6.7">
+
+  <meta property="og:title" content="7 Wildlife | Analysis of Trip Advisor data relating to South Australian parks" />
+  <meta property="og:type" content="book" />
+  
+  
+  
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="7 Wildlife | Analysis of Trip Advisor data relating to South Australian parks" />
+  
+  
+  
+
+<meta name="author" content="Department for Environment and Water">
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  
+  
+<link rel="prev" href="facilities.html">
+<link rel="next" href="summary-1.html">
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+
+
+
+
+
+
+
+<script src="libs/htmlwidgets-1.3/htmlwidgets.js"></script>
+<link href="libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
+<script src="libs/datatables-binding-0.5/datatables.js"></script>
+<link href="libs/dt-core-1.10.16/css/jquery.dataTables.min.css" rel="stylesheet" />
+<link href="libs/dt-core-1.10.16/css/jquery.dataTables.extra.css" rel="stylesheet" />
+<script src="libs/dt-core-1.10.16/js/jquery.dataTables.min.js"></script>
+<link href="libs/nouislider-7.0.10/jquery.nouislider.min.css" rel="stylesheet" />
+<script src="libs/nouislider-7.0.10/jquery.nouislider.min.js"></script>
+<link href="libs/selectize-0.12.0/selectize.bootstrap3.css" rel="stylesheet" />
+<script src="libs/selectize-0.12.0/selectize.min.js"></script>
+<link href="libs/crosstalk-1.0.0/css/crosstalk.css" rel="stylesheet" />
+<script src="libs/crosstalk-1.0.0/js/crosstalk.min.js"></script>
+
+
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li class="chapter" data-level="1" data-path="introduction.html"><a href="introduction.html"><i class="fa fa-check"></i><b>1</b> Introduction</a></li>
+<li class="chapter" data-level="2" data-path="methods.html"><a href="methods.html"><i class="fa fa-check"></i><b>2</b> Methods</a><ul>
+<li class="chapter" data-level="2.1" data-path="methods.html"><a href="methods.html#data-source"><i class="fa fa-check"></i><b>2.1</b> Data source</a></li>
+<li class="chapter" data-level="2.2" data-path="methods.html"><a href="methods.html#workflow"><i class="fa fa-check"></i><b>2.2</b> Workflow</a></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="data-exploration.html"><a href="data-exploration.html"><i class="fa fa-check"></i><b>3</b> Data exploration</a><ul>
+<li class="chapter" data-level="3.1" data-path="data-exploration.html"><a href="data-exploration.html#summary"><i class="fa fa-check"></i><b>3.1</b> Summary</a></li>
+<li class="chapter" data-level="3.2" data-path="data-exploration.html"><a href="data-exploration.html#missing-data"><i class="fa fa-check"></i><b>3.2</b> Missing data</a></li>
+<li class="chapter" data-level="3.3" data-path="data-exploration.html"><a href="data-exploration.html#count-of-reviews"><i class="fa fa-check"></i><b>3.3</b> Count of reviews</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="words.html"><a href="words.html"><i class="fa fa-check"></i><b>4</b> Words</a></li>
+<li class="chapter" data-level="5" data-path="activities.html"><a href="activities.html"><i class="fa fa-check"></i><b>5</b> Activities</a></li>
+<li class="chapter" data-level="6" data-path="facilities.html"><a href="facilities.html"><i class="fa fa-check"></i><b>6</b> Facilities</a></li>
+<li class="chapter" data-level="7" data-path="wildlife.html"><a href="wildlife.html"><i class="fa fa-check"></i><b>7</b> Wildlife</a></li>
+<li class="chapter" data-level="8" data-path="summary-1.html"><a href="summary-1.html"><i class="fa fa-check"></i><b>8</b> Summary</a><ul>
+<li class="chapter" data-level="8.1" data-path="summary-1.html"><a href="summary-1.html#words-used-in-reviews"><i class="fa fa-check"></i><b>8.1</b> Words used in reviews</a></li>
+<li class="chapter" data-level="8.2" data-path="summary-1.html"><a href="summary-1.html#activities-1"><i class="fa fa-check"></i><b>8.2</b> Activities</a></li>
+<li class="chapter" data-level="8.3" data-path="summary-1.html"><a href="summary-1.html#facilities-1"><i class="fa fa-check"></i><b>8.3</b> Facilities</a></li>
+<li class="chapter" data-level="8.4" data-path="summary-1.html"><a href="summary-1.html#wildlife-1"><i class="fa fa-check"></i><b>8.4</b> Wildlife</a></li>
+</ul></li>
+<li class="chapter" data-level="9" data-path="appendix.html"><a href="appendix.html"><i class="fa fa-check"></i><b>9</b> Appendix</a><ul>
+<li class="chapter" data-level="9.1" data-path="appendix.html"><a href="appendix.html#changed-words"><i class="fa fa-check"></i><b>9.1</b> Changed words</a></li>
+<li class="chapter" data-level="9.2" data-path="appendix.html"><a href="appendix.html#activities-2"><i class="fa fa-check"></i><b>9.2</b> Activities</a></li>
+<li class="chapter" data-level="9.3" data-path="appendix.html"><a href="appendix.html#facilities-2"><i class="fa fa-check"></i><b>9.3</b> Facilities</a></li>
+<li class="chapter" data-level="9.4" data-path="appendix.html"><a href="appendix.html#wildlife-2"><i class="fa fa-check"></i><b>9.4</b> Wildlife</a></li>
+<li class="chapter" data-level="9.5" data-path="appendix.html"><a href="appendix.html#r-packages-used"><i class="fa fa-check"></i><b>9.5</b> R packages used</a></li>
+</ul></li>
+<li class="chapter" data-level="10" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i><b>10</b> References</a></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Analysis of Trip Advisor data relating to South Australian parks</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="wildlife" class="section level1">
+<h1><span class="header-section-number">7</span> Wildlife</h1>
+<p>These wildlife were searched for in the combined <code>Title</code> and <code>Review</code> fields: animal; cockatoo; dolphin; echidna; emu; fur seal; galah; kangaroo; koala; lizard; penguin; platypus; sea lion; shark; snake; spider; wallaby; whale; and wombat. Appendix Table <a href="appendix.html#tab:wildlife">9.6</a> shows which words were treated as synonyms for each type of wildlife.</p>
+<p>Figure <a href="wildlife.html#fig:wildlifeOverall">7.1</a> shows how frequently each wildlife was mentioned.</p>
+<p>A significant interaction was found between origin of reviewer and wildlife mentioned (Chi-squared = 248.1, df = 28, p &lt;= 0).
+This can be seen visually in Figure <a href="wildlife.html#fig:wildlifeChiPlot">7.2</a>. The main contributions to the overall chi-squared value were:
+whale occurs more than expected in Aus; whale occurs less than expected in Overseas; and emu occurs more than expected in SA.</p>
+<hr />
+<div class="figure"><span id="fig:wildlifeOverall"></span>
+<img src="_main_files/figure-html/wildlifeOverall-1.png" alt="The wildlife most mentioned in reviews were: kangaroo, koala and whale" width="672" />
+<p class="caption">
+Figure 7.1: The wildlife most mentioned in reviews were: kangaroo, koala and whale
+</p>
+</div>
+<hr />
+<div class="figure"><span id="fig:wildlifeChiPlot"></span>
+<img src="_main_files/figure-html/wildlifeChiPlot-1.png" alt="Large contributions to the significant chi-squared value were: whale occurs more than expected in Aus; and whale occurs less than expected in Overseas" width="672" />
+<p class="caption">
+Figure 7.2: Large contributions to the significant chi-squared value were: whale occurs more than expected in Aus; and whale occurs less than expected in Overseas
+</p>
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="facilities.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="summary-1.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"google": false,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"all": ["facebook", "google", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"download": null,
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+</body>
+
+</html>

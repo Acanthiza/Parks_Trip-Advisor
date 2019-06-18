@@ -1,4 +1,80 @@
   
+
+  # chi-square
+  chi_square <- function(cont) {
+    
+    var1 <- names(cont)[1]
+    var2 <- names(cont)[2]
+    
+    contingency <- cont %>%
+      dplyr::mutate(var1 = factor(!!ensym(var1))
+                    , var2 = factor(!!ensym(var2))
+                    ) %>%
+      tidyr::complete(var1,var2) %>%
+      dplyr::mutate(!!var1 := if_else(is.na(!!ensym(var1)),var1,!!ensym(var1))
+                    , !!var2 := if_else(is.na(!!ensym(var2)),var2,!!ensym(var2))
+                    , var1 = fct_inorder(factor(as.character(var1)))
+                    , var2 = fct_inorder(factor(as.character(var2)))
+                    , var1No = as.factor(as.numeric(var1))
+                    , var2No = as.factor(as.numeric(var2))
+                    ) %>%
+      replace(is.na(.), 0)
+    
+    chSq <- contingency %>%
+      dplyr::select(var1No,var2No,n) %>%
+      tidyr::spread(var2No,n,drop=TRUE) %>%
+      as.data.frame %>%
+      tibble::column_to_rownames(names(.)[1]) %>%
+      chisq.test()
+    
+    chSqResidual <- chSq$residuals %>%
+      data.frame %>%
+      tibble::rownames_to_column("var1No") %>%
+      tidyr::gather("var2No","residual",2:ncol(.)) %>%
+      dplyr::mutate(var2No = gsub("X","",var2No))
+    
+    chSqVis <- data.frame(100*chSq$residuals^2/chSq$statistic) %>%
+      data.frame %>%
+      tibble::rownames_to_column("var1No") %>%
+      tidyr::gather("var2No","contribution",2:ncol(.))%>%
+      dplyr::mutate(var2No = gsub("X","",var2No)) %>%
+      as_tibble() %>%
+      dplyr::left_join(chSqResidual) %>%
+      dplyr::left_join(contingency) %>%
+      dplyr::mutate(per = 100*contribution/sum(contribution)
+                    , text = paste0("n:",n,"\n",round(per,1),"%")
+                    , direction = if_else(residual<0
+                                          ,"less than expected"
+                                          , if_else(residual>0
+                                                    ,"more than expected"
+                                                    ,"as expected"
+                                          )
+                    )
+                    , label = paste0(var2, " occurs ", direction, " in ", var1)
+      ) %>%
+      dplyr::select(!!var1,!!var2,contribution,residual,n,per,text,label,direction)
+    
+    chSqPlot <- ggplot(chSqVis, aes(!!ensym(var1), fct_rev(!!ensym(var2)), fill = direction, alpha = contribution, label = text)) +
+      geom_tile() +
+      geom_text(size = 2) +
+      guides(alpha = FALSE) +
+      theme(axis.text.x=element_text(angle=90, vjust=0.5)) +
+      labs(subtitle = "Percentages are the percent contribution to overall chi-squared value"
+           , y = var2
+           , x = var1
+      ) +
+      scale_fill_viridis_d()
+    
+    chSqText <- paste0("(Chi-squared = ",round(chSq$statistic,1), ", df = ",chSq$parameter,", p <= ",round(chSq$p.value,4),")")
+    
+    doChSqPlot <- chSq$p.value<0.05
+    
+    chSqRes <- list(chSq=chSq,chSqVis=chSqVis,chSqPlot=chSqPlot,chSqText=chSqText,doChSqPlot=doChSqPlot)
+    
+  }  
+  
+  
+  
 # Create a colour palette for n groups
 
   col_pal <-  function(n) {
