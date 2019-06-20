@@ -18,7 +18,9 @@ editor_options:
 
 ```{r setup, warning = FALSE, echo = FALSE, message = FALSE}
 
-  useCores <- round(parallel::detectCores()*3/4,0)
+  coresToUse <- round(parallel::detectCores()*3/4,0)
+
+  useCores <- if(coresToUse < 4) 4 else coresToUse
 
   packages <- c("knitr"
                 ,"bookdown"
@@ -353,20 +355,12 @@ There are several variables in the data with relatively few levels: `r vec_to_se
   mostNeg <- datWord %>% dplyr::filter(sentiment == "negative") %>% dplyr::count(word) %>% dplyr::top_n(1,n) %>% dplyr::pull(word)
   mostNeut <- datWord %>% dplyr::filter(sentiment == "neutral") %>% dplyr::count(word) %>% dplyr::top_n(1,n) %>% dplyr::pull(word)
   
-  wordGLM <- contingency_GLM(datForPlot %>%
+  # cont <- datForPlot %>% dplyr::mutate(failure = nOrigin-n) %>% dplyr::select(Origin,word,success=n,failure)
+  
+  wordGLM <- contingency_glm(datForPlot %>%
                                dplyr::mutate(failure = nOrigin-n) %>%
                                dplyr::select(Origin,word,success=n,failure)
                                )
-
-```
-
-```{r bayesianChiTrial}
-
-  library("rstan")
-  library("rstanarm")
-  options(mc.cores = 4)
-
-  
 
 ```
 
@@ -390,11 +384,9 @@ The most frequent word with negative sentiments was ``r mostNeg``. A random samp
 
 * `r paste0(datWord %>% dplyr::select(Title) %>% unique() %>% dplyr::filter(grepl(mostNeg,Title)) %>% dplyr::sample_n(3) %>% dplyr::pull(Title),collapse="\n* ")`
 
-A `r if_else(wordChi$doChSqPlot,"","non-")`significant interaction was found between origin of reviewer and words used `r wordChi$chSqText`.
-```{asis, eval=wordChi$doChSqPlot, echo=TRUE}
-This can be seen visually in Figure \@ref(fig:wordChiPlot). The main contributions to the overall chi-squared value were:
-```
-`r  if_else(wordChi$doChSqPlot,paste0(wordChi$chSqVis %>% dplyr::top_n(3,contribution) %>% dplyr::arrange(desc(contribution)) %>% pull(label) %>% vec_to_sentence(";"),"."),"")`
+The words that were most different between the groups were:
+
+* `r paste0(wordGLM["modDiffRes"][[1]] %>% dplyr::top_n(3,alpha) %>% dplyr::pull(text) %>% gsub("\n"," ",.),collapse="\n* ")`
 
 ---
 

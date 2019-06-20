@@ -1,7 +1,7 @@
 
   # glm 'chi-square'
 
-  contingencyGLM <- function(cont){
+  contingency_glm <- function(cont){
     
     var1 <- names(cont)[1]
     var2 <- names(cont)[2]
@@ -69,54 +69,57 @@
       dplyr::mutate_if(is.numeric,round,2)
     
     
-    plotRidges <- ggplot(modPred, aes(value,!!ensym(var1),fill=!!ensym(var1))) +
+    modPlotRidges <- ggplot(modPred, aes(value,!!ensym(var1),fill=!!ensym(var1))) +
       geom_density_ridges() +
       facet_wrap(~get("var2"),scales="free") +
       scale_fill_viridis_d()
     
     
-    diffVar1 <- modPred %>%
+    modDiffVar1 <- modPred %>%
       dplyr::select(-col,-!!ensym(var1),-!!ensym(var2)) %>%
       dplyr::group_by(var2,row) %>%
       dplyr::arrange(var2,row) %>%
-      dplyr::mutate(diff = value-lag(value,default=last(value))) %>%
+      dplyr::mutate(diff = value-lag(value,default=last(value))
+                    , diffLevel = lag(var1,default=last(var1))
+                    ) %>%
       dplyr::ungroup()
     
     
-    diffRes <- diffPred %>%
-      dplyr::group_by(word,Comparison) %>%
+    modDiffRes <- diffVar1 %>%
+      dplyr::group_by(var1,var2,diffLevel) %>%
       dplyr::summarise(n = n()
                        , nCheck = nrow(as_tibble(mod))
                        #, value = median(value)
-                       , value = 100*sum(value > 0)/n
+                       , value = 100*sum(diff > 0)/n
                        #, `l = r` = 100*sum(value ==0)/n
-      ) %>%
+                       ) %>%
       dplyr::ungroup() %>%
       dplyr::mutate(alpha = 1.5*abs(value-50)
                     , colour = if_else(value > 50,"Greater than 50%","Less than 50%")
-                    , words = map_chr(word,~paste0(" reviewers use '",.,"'\nmore than "))
-                    , text = paste0(round(value,0)
-                                    ,"% chance that "
-                                    ,substr(Comparison,1,regexpr(" vs ",Comparison)-1)
-                                    ,words
-                                    ,substr(Comparison,regexpr(" vs ",Comparison)+1,nchar(Comparison))
-                                    ," reviewers"
-                    )
-                    , Comparison = fct_relevel(Comparison, grep("SA",levels(factor(diffRes$Comparison)),value=TRUE))
-      ) %>%
-      dplyr::mutate_if(is.numeric,round,2)
+                    , text = paste0(round(value,0),"% chance that ",var1," reviewers use\n'",var2," 'more than ",diffLevel," reviewers")
+                    , var1Comparison = paste0(var1," vs ",diffLevel)
+                    , var1Comparison = fct_relevel(var1Comparison, grep("SA",unique(var1Comparison),value=TRUE))
+                    ) %>%
+      dplyr::mutate_if(is.numeric,round,2) 
+      
     
-    ggplot(diffRes,aes(Comparison,word,fill=colour,alpha=alpha,label=text)) +
+    modPlotDiff <- ggplot(diffRes,aes(var1Comparison,var2,fill=colour,alpha=alpha,label=text)) +
       geom_tile() +
-      geom_text(size=3) +
+      geom_text(size=2) +
       scale_fill_viridis_d() +
       scale_alpha_continuous(guide = FALSE
                              , range = c(0,0.5)
-      ) +
-      labs(subtitle = "Percentages are likelihood that 'left' users word greater than 'right'.\ni.e. 50% represents equal chance"
+                             ) +
+      labs(subtitle = "50% represents equal chance. Closer to 50% is more faded"
            , fill = "Likelihood"
-      )
+           , x = "Comparison"
+           , y = get("var2")
+           )
     
+    modStuff <- ls(pattern="mod")
+    res <- lapply(modStuff,get)
+    names(res) <- modStuff
+      
     
   }
 
