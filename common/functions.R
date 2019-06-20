@@ -1,3 +1,128 @@
+
+  # glm 'chi-square'
+
+  contingencyGLM <- function(cont){
+    
+    var1 <- names(cont)[1]
+    var2 <- names(cont)[2]
+    
+    contingency <- cont %>%
+      dplyr::mutate(var1 = factor(!!ensym(var1))
+                    , var2 = factor(!!ensym(var2))
+                    ) %>%
+      tidyr::complete(var1,var2) %>%
+      dplyr::mutate(!!var1 := if_else(is.na(!!ensym(var1)),var1,!!ensym(var1))
+                    , !!var2 := if_else(is.na(!!ensym(var2)),var2,!!ensym(var2))
+                    , var1 = fct_inorder(factor(as.character(var1)))
+                    , var2 = fct_inorder(factor(as.character(var2)))
+                    , var1No = as.factor(as.numeric(var1))
+                    , var2No = as.factor(as.numeric(var2))
+                    , trials = success + failure
+                    ) %>%
+      replace(is.na(.), 0)
+    
+    mod <- stan_glm(cbind(success,failure) ~ var1*var2
+                    , data = contingency
+                    , family = binomial()
+                    #, iter = 5000
+                    )
+    
+    modFit <- pp_check(mod)
+    
+    modRhat <- plot(mod, "rhat_hist")
+    
+    modTrace <- stan_trace(mod)
+    
+    mod2d <- pp_check(mod, plotfun = "stat_2d", stat = c("mean", "sd"))
+    
+    # Use the model to predict results over variables of interest
+    modPred <- contingency %>%
+      dplyr::group_by(var1,var2) %>%
+      dplyr::summarise(success = 0, failure = 100) %>% # use 100 trials to give results as percentages
+      dplyr::ungroup() %>%
+      dplyr::mutate(col = row.names(.)) %>%
+      dplyr::left_join(as_tibble(posterior_predict(mod
+                                                   , newdata = .
+                                                   )
+                                 ) %>%
+                         tibble::rownames_to_column(var = "row") %>%
+                         tidyr::gather(col,value,2:ncol(.))
+                       ) %>%
+      dplyr::left_join(contingency %>%
+                         dplyr::select(!!ensym(var1),!!ensym(var2),var1,var2) %>%
+                         unique()
+                       )
+    
+    # summarise the results
+    modRes <- as_tibble(modPred) %>%
+      dplyr::group_by(!!ensym(var1),!!ensym(var2)) %>%
+      dplyr::summarise(n = n()
+                       , nCheck = nrow(as_tibble(mod))
+                       , modMedian = quantile(value,0.5)
+                       , modMean = mean(value)
+                       , modci90lo = quantile(value, 0.025)
+                       , modci90up = quantile(value, 0.975)
+                       , ci = modci90up-modci90lo
+                       , text = paste0(round(modMedian,2)," (",round(modci90lo,2)," to ",round(modci90up,2),")")
+                       ) %>%
+      dplyr::ungroup() %>%
+      dplyr::mutate_if(is.numeric,round,2)
+    
+    
+    plotRidges <- ggplot(modPred, aes(value,!!ensym(var1),fill=!!ensym(var1))) +
+      geom_density_ridges() +
+      facet_wrap(~get("var2"),scales="free") +
+      scale_fill_viridis_d()
+    
+    
+    diffVar1 <- modPred %>%
+      dplyr::select(-col,-!!ensym(var1),-!!ensym(var2)) %>%
+      dplyr::group_by(var2,row) %>%
+      dplyr::arrange(var2,row) %>%
+      dplyr::mutate(diff = value-lag(value,default=last(value))) %>%
+      dplyr::ungroup()
+    
+    
+    diffRes <- diffPred %>%
+      dplyr::group_by(word,Comparison) %>%
+      dplyr::summarise(n = n()
+                       , nCheck = nrow(as_tibble(mod))
+                       #, value = median(value)
+                       , value = 100*sum(value > 0)/n
+                       #, `l = r` = 100*sum(value ==0)/n
+      ) %>%
+      dplyr::ungroup() %>%
+      dplyr::mutate(alpha = 1.5*abs(value-50)
+                    , colour = if_else(value > 50,"Greater than 50%","Less than 50%")
+                    , words = map_chr(word,~paste0(" reviewers use '",.,"'\nmore than "))
+                    , text = paste0(round(value,0)
+                                    ,"% chance that "
+                                    ,substr(Comparison,1,regexpr(" vs ",Comparison)-1)
+                                    ,words
+                                    ,substr(Comparison,regexpr(" vs ",Comparison)+1,nchar(Comparison))
+                                    ," reviewers"
+                    )
+                    , Comparison = fct_relevel(Comparison, grep("SA",levels(factor(diffRes$Comparison)),value=TRUE))
+      ) %>%
+      dplyr::mutate_if(is.numeric,round,2)
+    
+    ggplot(diffRes,aes(Comparison,word,fill=colour,alpha=alpha,label=text)) +
+      geom_tile() +
+      geom_text(size=3) +
+      scale_fill_viridis_d() +
+      scale_alpha_continuous(guide = FALSE
+                             , range = c(0,0.5)
+      ) +
+      labs(subtitle = "Percentages are likelihood that 'left' users word greater than 'right'.\ni.e. 50% represents equal chance"
+           , fill = "Likelihood"
+      )
+    
+    
+  }
+
+  
+
+
   
 
   # chi-square

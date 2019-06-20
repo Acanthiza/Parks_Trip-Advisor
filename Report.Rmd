@@ -106,7 +106,7 @@ editor_options:
 
 DEW manages many parks across South Australia. Some of these parks have a 'page' on [TripAdvisor](https://www.tripadvisor.com.au/). For example, there is a page for [Ikara-Flinders Ranges National Park](https://www.tripadvisor.com.au/Attraction_Review-g499711-d6456334-Reviews-Flinders_Ranges_National_Park-Hawker_Flinders_Ranges_South_Australia.html).
 
-DEW are interested to know what information is contained in TripAdvisor reviews. Specifically, the following analyses were identified by the community engagement branch as potentially useful:
+DEW are interested to know what information is contained in TripAdvisor reviews. Specifically, the following analyses were identified as potentially useful:
 
 * data summary, including which parks were reviewed and by how many people
 * word analysis: overall sentiment
@@ -117,7 +117,7 @@ DEW are interested to know what information is contained in TripAdvisor reviews.
 Each of these to be investigated by three major groupings:
 
 * South Australian reviewers
-* Other Austrlian reviewers
+* Other Australian reviewers
 * Overseas reviewers
 
 
@@ -330,8 +330,11 @@ There are several variables in the data with relatively few levels: `r vec_to_se
   
 
   datForPlot <- datWord %>%
-    dplyr::count(id, Origin, reviews, word, sentiment, sort = TRUE) %>%
-    dplyr::count(Origin, reviews, word, sentiment, sort = TRUE) %>%
+    dplyr::group_by(Origin) %>%
+    dplyr::mutate(nOrigin = n_distinct(id)) %>%
+    dplyr::ungroup() %>%
+    dplyr::count(id, Origin, nOrigin, reviews, word, sentiment, sort = TRUE) %>%
+    dplyr::count(Origin, nOrigin, reviews, word, sentiment, sort = TRUE) %>%
     dplyr::group_by(Origin, sentiment) %>%
     dplyr::slice(1:10) %>%
     dplyr::ungroup() %>%
@@ -339,20 +342,31 @@ There are several variables in the data with relatively few levels: `r vec_to_se
                   , word = fct_reorder(word,per)
                   , sentiment = fct_explicit_na(sentiment, na_level = "neutral")
                   , sentiment = fct_relevel(sentiment, "positive", "negative")
-                  )
+                  ) %>%
+                          dplyr::select(Origin,nOrigin,word,sentiment,n,per) %>%
+                              dplyr::group_by(word) %>%
+                              dplyr::mutate(levels = n()) %>%
+                              dplyr::ungroup() %>%
+                              dplyr::filter(levels == max(levels))
 
   mostPos <- datWord %>% dplyr::filter(sentiment == "positive") %>% dplyr::count(word) %>% dplyr::top_n(1,n) %>% dplyr::pull(word)
   mostNeg <- datWord %>% dplyr::filter(sentiment == "negative") %>% dplyr::count(word) %>% dplyr::top_n(1,n) %>% dplyr::pull(word)
   mostNeut <- datWord %>% dplyr::filter(sentiment == "neutral") %>% dplyr::count(word) %>% dplyr::top_n(1,n) %>% dplyr::pull(word)
   
-  wordChi <- chi_square(datForPlot %>%
-                          dplyr::select(Origin,word,n) %>%
-                              dplyr::group_by(word) %>%
-                              dplyr::filter(n > 3) %>%
-                              dplyr::mutate(levels = n()) %>%
-                              dplyr::ungroup() %>%
-                              dplyr::filter(levels == max(levels))
-                        )
+  wordGLM <- contingency_GLM(datForPlot %>%
+                               dplyr::mutate(failure = nOrigin-n) %>%
+                               dplyr::select(Origin,word,success=n,failure)
+                               )
+
+```
+
+```{r bayesianChiTrial}
+
+  library("rstan")
+  library("rstanarm")
+  options(mc.cores = 4)
+
+  
 
 ```
 
@@ -526,7 +540,7 @@ This can be seen visually in Figure \@ref(fig:activityChiPlot). The main contrib
 
 These facilities were searched for in the combined `Title` and `Review` fields: `r searches %>% dplyr::filter(Type == "facility") %>% dplyr::count(Use) %>% dplyr::pull(Use) %>% unique() %>% vec_to_sentence(";")`. Appendix Table \@ref(tab:facilities) shows which words were treated as synonyms for each type of facility.
 
-Figure \@ref(fig:facilityOverall) shows how frequently each facility was mentioned, including the sentiment of the sentence in which the facility was mentioned.
+Figure \@ref(fig:facilityOverall) shows how frequently each facility was mentioned.
 
 A `r if_else(activityChi$doChSqPlot,"","non-")`significant interaction was found between origin of reviewer and facilities mentioned `r activityChi$chSqText`.
 ```{asis, eval=activityChi$doChSqPlot, echo=TRUE}
