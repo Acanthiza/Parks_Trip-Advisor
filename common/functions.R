@@ -10,7 +10,12 @@
       dplyr::mutate(var1 = factor(!!ensym(var1))
                     , var2 = factor(!!ensym(var2))
                     ) %>%
-      tidyr::complete(var1,var2) %>%
+      dplyr::group_by(var2) %>%
+      dplyr::filter(success > 3) %>%
+      dplyr::mutate(levels = n()) %>%
+      dplyr::ungroup() %>%
+      dplyr::filter(levels == max(levels)) %>%
+      dplyr::ungroup() %>%
       dplyr::mutate(!!var1 := if_else(is.na(!!ensym(var1)),var1,!!ensym(var1))
                     , !!var2 := if_else(is.na(!!ensym(var2)),var2,!!ensym(var2))
                     , var1 = fct_inorder(factor(as.character(var1)))
@@ -20,6 +25,7 @@
                     , trials = success + failure
                     ) %>%
       replace(is.na(.), 0)
+    
     
     mod <- stan_glm(cbind(success,failure) ~ var1*var2
                     , data = contingency
@@ -70,23 +76,24 @@
     
     
     modPlotRidges <- ggplot(modPred, aes(value,!!ensym(var1),fill=!!ensym(var1))) +
-      geom_density_ridges() +
+      ggridges::geom_density_ridges(alpha = 0.5) +
       facet_wrap(~get("var2"),scales="free") +
       scale_fill_viridis_d()
     
     
     modDiffVar1 <- modPred %>%
-      dplyr::select(-col,-!!ensym(var1),-!!ensym(var2)) %>%
-      dplyr::group_by(var2,row) %>%
-      dplyr::arrange(var2,row) %>%
-      dplyr::mutate(diff = value-lag(value,default=last(value))
-                    , diffLevel = lag(var1,default=last(var1))
+      (function(x) x %>% dplyr::left_join(x %>% dplyr::select(var1,var2,row,value) %>% dplyr::rename(var1b = var1, value_2 = value))) %>%
+      dplyr::filter(var1 != var1b) %>%
+      dplyr::mutate(diff = value-value_2
+                    , comparison = map2_chr(var1,var1b,~paste(sort(c(.x,.y))[1],sort(c(.x,.y))[2]))
                     ) %>%
+      dplyr::group_by(comparison,var2,row) %>%
+      dplyr::slice(1) %>%
       dplyr::ungroup()
     
     
-    modDiffRes <- diffVar1 %>%
-      dplyr::group_by(var1,var2,diffLevel) %>%
+    modDiffRes <- modDiffVar1 %>%
+      dplyr::group_by(var1,var2,var1b) %>%
       dplyr::summarise(n = n()
                        , nCheck = nrow(as_tibble(mod))
                        #, value = median(value)
@@ -96,21 +103,33 @@
       dplyr::ungroup() %>%
       dplyr::mutate(alpha = 1.5*abs(value-50)
                     , colour = if_else(value > 50,"Greater than 50%","Less than 50%")
-                    , text = paste0(round(value,0),"% chance that ",var1," reviewers use\n'",var2," 'more than ",diffLevel," reviewers")
-                    , var1Comparison = paste0(var1," vs ",diffLevel)
+                    , text = paste0(round(value,0),"% chance that ",var1," reviewers use\n",var2," ",gsub("50%","",tolower(colour)),var1b," reviewers")
+                    , var1Comparison = paste0(var1," vs ",var1b)
                     , var1Comparison = fct_relevel(var1Comparison, grep("SA",unique(var1Comparison),value=TRUE))
                     ) %>%
-      dplyr::mutate_if(is.numeric,round,2) 
+      dplyr::mutate_if(is.numeric,round,2) %>%
+      dplyr::arrange(var2,var1,var1b)
+    
+    
+    modPlotRidgesDiff <- ggplot(modDiffVar1, aes(diff,paste0(get("var1")," vs ",get("var1b")))) +
+      ggridges::geom_density_ridges(alpha = 0.5) +
+      geom_vline(aes(xintercept = 0)) +
+      facet_wrap(~get("var2"),scales="free") +
+      scale_fill_viridis_d() +
+      labs(y = "Comparison"
+           , x = "Difference"
+           )
       
     
-    modPlotDiff <- ggplot(diffRes,aes(var1Comparison,var2,fill=colour,alpha=alpha,label=text)) +
+    modPlotDiff <- ggplot(modDiffRes,aes(var1Comparison,var2,fill=colour,alpha=alpha,label=text)) +
       geom_tile() +
-      geom_text(size=2) +
+      geom_text(size=3) +
       scale_fill_viridis_d() +
       scale_alpha_continuous(guide = FALSE
                              , range = c(0,0.5)
                              ) +
-      labs(subtitle = "50% represents equal chance. Closer to 50% is more faded"
+      scale_x_discrete(limits = rev(levels(var2))) +
+      labs(subtitle = "50% represents equal chance. Further from 50% is less faded (greater difference)"
            , fill = "Likelihood"
            , x = "Comparison"
            , y = get("var2")
@@ -119,14 +138,10 @@
     modStuff <- ls(pattern="mod")
     res <- lapply(modStuff,get)
     names(res) <- modStuff
-      
+    
+    return(res)
     
   }
-
-  
-
-
-  
 
   # chi-square
   chi_square <- function(cont) {
@@ -325,3 +340,4 @@
     results <- list("info"=info, "classif" = Jclassif, "breaks.max.GoF"=max.GoF.brks, "class.data" = df)
     return(results)
   }
+  

@@ -30,6 +30,9 @@ editor_options:
                 ,"lubridate"
                 ,"tidytext"
                 ,"DT"
+                ,"rstan"
+                ,"rstanarm"
+                ,"ggridges"
                 )
   
   purrr::walk(packages,library,character.only=TRUE)
@@ -252,9 +255,9 @@ There are several variables in the data with relatively few levels: `r vec_to_se
   removeWords <- c("title","review","granite","island","national","park","flinders","ranges","kangaroo","chase","victor","harbor","harbour","morialta","adelaide","mt","mount","lofty","coober","pedy","rocks","arch","gully","ki","wilpena","pound","coffin")
   
   changeWords <- tribble(~word, ~changed
-                         , "disappointing","dissapoint"
-                         , "disappointed","dissapoint"
-                         , "disappointment","dissapoint"
+                         , "disappointing","disappoint"
+                         , "disappointed","disappoint"
+                         , "disappointment","disappoint"
                          , "colours","colour"
                          , "color","colour"
                          , "beauty","beautiful"
@@ -357,6 +360,7 @@ There are several variables in the data with relatively few levels: `r vec_to_se
   
   # cont <- datForPlot %>% dplyr::mutate(failure = nOrigin-n) %>% dplyr::select(Origin,word,success=n,failure)
   
+  options(mc.cores = 4)
   wordGLM <- contingency_glm(datForPlot %>%
                                dplyr::mutate(failure = nOrigin-n) %>%
                                dplyr::select(Origin,word,success=n,failure)
@@ -417,9 +421,9 @@ The words that were most different between the groups were:
 
 ---
 
-```{r wordChiPlot, fig.height = 10, eval = wordChi$doChSqPlot, fig.cap = paste0("Large contributions to the significant chi-squared value were: ",wordChi$chSqVis %>% dplyr::group_by(direction) %>% dplyr::top_n(1,contribution) %>% dplyr::arrange(desc(contribution)) %>% pull(label) %>% vec_to_sentence(";"))}
+```{r wordGLMPlot, fig.height = 10, fig.cap = paste0("Large differences between groups are highlighted by fading, for example there is a ",wordGLM$modDiffRes %>% dplyr::group_by(colour) %>% dplyr::top_n(1,alpha) %>% pull(text) %>% vec_to_sentence(";") %>% gsub("\n"," ",.))}
 
-  wordChi$chSqPlot
+  wordGLM$modPlotDiff
 
 ```
 
@@ -457,6 +461,17 @@ The words that were most different between the groups were:
                               dplyr::ungroup() %>%
                               dplyr::filter(levels == max(levels))
                             )
+  
+  activityGLM <- contingency_glm(activities %>%
+                                   dplyr::group_by(Use) %>%
+                                   dplyr::mutate(levels = n()) %>%
+                                   dplyr::ungroup() %>%
+                                   dplyr::filter(levels == max(levels)) %>%
+                                   dplyr::mutate(success = nUse
+                                                 , failure = total-success
+                                                 ) %>%
+                                   dplyr::select(Origin,Use,success,failure)
+                                 )
 
 ```
 
@@ -464,11 +479,9 @@ These activities were searched for in the combined `Title` and `Review` fields: 
 
 Figure \@ref(fig:activityOverall) shows how frequently each of those activities were mentioned overall.
 
-A `r if_else(activityChi$doChSqPlot,"","non-")`significant interaction was found between origin of reviewer and activities mentioned `r activityChi$chSqText`.
-```{asis, eval=activityChi$doChSqPlot, echo=TRUE}
-This can be seen visually in Figure \@ref(fig:activityChiPlot). The main contributions to the overall chi-squared value were:
-```
-`r  if_else(activityChi$doChSqPlot,paste0(activityChi$chSqVis %>% dplyr::top_n(3,contribution) %>% dplyr::arrange(desc(contribution)) %>% pull(label) %>% vec_to_sentence(";"),"."),"")`
+The words that were most different between the groups were:
+
+* `r paste0(activityGLM["modDiffRes"][[1]] %>% dplyr::top_n(3,alpha) %>% dplyr::pull(text) %>% gsub("\n"," ",.),collapse="\n* ")`
 
 ---
 
@@ -487,9 +500,9 @@ This can be seen visually in Figure \@ref(fig:activityChiPlot). The main contrib
 
 ---
 
-```{r activityChiPlot, fig.height = 10, eval = activityChi$doChSqPlot, fig.cap = paste0("Large contributions to the significant chi-squared value were: ",activityChi$chSqVis %>% dplyr::group_by(direction) %>% dplyr::top_n(1,contribution) %>% dplyr::arrange(desc(contribution)) %>% pull(label) %>% vec_to_sentence(";"))}
+```{r activityGLMPlot, fig.height = 10, fig.cap = paste0("Large differences between groups are highlighted by fading, for example there is a ",activityGLM$modDiffRes %>% dplyr::group_by(colour) %>% dplyr::top_n(1,alpha) %>% pull(text) %>% vec_to_sentence(";") %>% gsub("\n"," ",.))}
 
-  activityChi$chSqPlot
+  activityGLM$modPlotDiff
 
 ```
 
