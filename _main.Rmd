@@ -39,9 +39,7 @@ editor_options:
   
   write_bib(c("base",packages),file="rPackages.bib",tweak=TRUE)
   
-  if(file.exists("../Tools/functions.R")) file_copy("../Tools/functions.R","common/functions.R",overwrite = TRUE)
   source("common/functions.R")
-  
   
   # Set default chunk options (can adjust individual chunks differently if required)
   knitr::opts_chunk$set(warning = FALSE
@@ -455,6 +453,15 @@ The words that were most different between the groups were:
                   , overallText = paste0(Use,": ",round(100*n/nrow(dat),1),"%")
                   )
   
+  activityChi <- chi_square(activities %>%
+                              dplyr::select(Origin,Use,n=nUse) %>%
+                              dplyr::group_by(Use) %>%
+                              dplyr::filter(n > 3) %>%
+                              dplyr::mutate(levels = n()) %>%
+                              dplyr::ungroup() %>%
+                              dplyr::filter(levels == max(levels))
+                            )
+  
   activityGLM <- contingency_glm(activities %>%
                                    dplyr::group_by(Use) %>%
                                    dplyr::mutate(levels = n()) %>%
@@ -474,7 +481,7 @@ Figure \@ref(fig:activityOverall) shows how frequently each of those activities 
 
 The words that were most different between the groups were:
 
-* `r paste0(activityGLM["modDiffRes"][[1]] %>% dplyr::top_n(3,abs(value)) %>% dplyr::pull(text) %>% gsub("\n"," ",.),collapse="\n* ")`
+* `r paste0(activityGLM["modDiffRes"][[1]] %>% dplyr::top_n(3,alpha) %>% dplyr::pull(text) %>% gsub("\n"," ",.),collapse="\n* ")`
 
 ---
 
@@ -805,3 +812,6 @@ There was a statistical difference found in the frequency with which certain wil
 ```
 
 # References
+
+<!--chapter:end:Report.Rmd-->
+
